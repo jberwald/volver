@@ -8,7 +8,7 @@ using namespace std;
 
 ///////////////////////////////////////
 //
-// To compile: g++ -O2 lorenzPoincareSection.cpp -o lorenzPoincareSection `/Users/jberwald/src/capd/bin/capd-config --cflags --libs`
+// To compile: g++ -O2 lorenzSection.cpp -o lorenzSection `/Users/jberwald/src/capd/bin/capd-config --cflags --libs`
 //
 // Modified by: Jesse Berwald
 //
@@ -29,30 +29,31 @@ public:
   PoincareMap pm;
 
   // initialize class with initializer list -- constructs derived objects
-  LorenzPoincareMap ( int order, interval _sigma, interval _rho, interval _beta )
-  //LorenzPoincareMap ( int order, interval _lambda1, interval _lambda2, interval _lambda3,
-    //		      interval _k1, interval _k2, interval _k3 )
-    : section("var:x,y,z;fun:z-27.0;"), // 0.10546875 the section is z-27, 27**-8 or z-1 (geometric flow)
-      vectorField("par:b,r,s;var:x,y,z;fun:s*(y-x),x*(r-z)-y,x*y-b*z;"), // here is the vector field
-      //vectorField ( "par:a,b,c,j,k,l;var:x,y,z;fun:a*x-j*(x+y)*z,b*y+j*(x+y)*z,c*z+(x+y)*(k*x+l*y);"),
+  // LorenzPoincareMap ( int order, interval _sigma, interval _rho, interval _beta )
+  LorenzPoincareMap ( int order, interval _lambda1, interval _lambda2, interval _lambda3,
+		      interval _k1, interval _k2, interval _k3 )
+    : section("var:x,y,z;fun:z-27.;"), //  the section is z-27
+      //vectorField("par:b,r,s;var:x,y,z;fun:s*(y-x),x*(r-z)-y,x*y-b*z;"), // here is the vector field
+      // the geometric version of the vector field
+      vectorField ( "par:a,b,c,j,k,l;var:x,y,z;fun:a*x-j*(x+y)*z,b*y+j*(x+y)*z,c*z+(x+y)*(k*x+l*y);"),
       solver(vectorField,order,0.1), // 0.1 is the time step, ignored since step control is turned on by default
       // MinusPlus means that the section is crossed with 'z' changing
-      // sign from minus to plus Other acceptable values are PlusMinus
+      // sign from minus to plus. Other acceptable values are PlusMinus
       // and None. The last means both directions are acceptable. This will probably have to be changed to None. 
       pm( solver, section, poincare::PlusMinus )  
                                   
   {
     // set parameter values b, r, s
-    vectorField.setParameter("b",_beta);
-    vectorField.setParameter("r",_rho);
-    vectorField.setParameter("s",_sigma);
+    // vectorField.setParameter("b",_beta);
+    // vectorField.setParameter("r",_rho);
+    // vectorField.setParameter("s",_sigma);
     // set parameter values for the normal form of Lorenz equations
-    // vectorField.setParameter("a",_lambda1);
-    // vectorField.setParameter("b",_lambda2);
-    // vectorField.setParameter("c",_lambda3);
-    // vectorField.setParameter("j",_k1);
-    // vectorField.setParameter("k",_k2);
-    // vectorField.setParameter("l",_k3);
+    vectorField.setParameter("a",_lambda1);
+    vectorField.setParameter("b",_lambda2);
+    vectorField.setParameter("c",_lambda3);
+    vectorField.setParameter("j",_k1);
+    vectorField.setParameter("k",_k2);
+    vectorField.setParameter("l",_k3);
   }
 
   // this operator computes period-iteration of Poincare map
@@ -65,18 +66,15 @@ public:
     IVector px(3);
     px[0] = u[0];
     px[1] = u[1];
-    px[2] = 27.0; //0.10546875; // 27*2^{-8}
-
-    cout << "before pm" << endl;
-    cout << px << endl;
+    px[2] = 1./256.;
 
     // we define a doubleton representation of the set
     C0Rect2Set theSet( px );
     //for(int i=0;i<period;++i) // and compute period-iterations
     px = pm( theSet, period );
 
-    cout << "after pm" << endl;
-    cout << px << endl;
+    // cout << "after pm" << endl;
+    // cout << px << endl;
 
     // here we project the image 'x' onto 2-dimensional section
     //return IVector(2,x.begin()+1);
@@ -96,7 +94,7 @@ public:
     IVector deriv(3);
     deriv[0] = u[0];
     deriv[1] = u[1];
-    deriv[2] = 27.0; //0.10546875; // 27*2^{-8} //interval( 27.0 );
+    deriv[2] = 1./256.; // 27*2^{-8} //interval( 27.0 );
 
     // for computing of derivative of PM we need an instance of logarithmic norm
     IEuclLNorm N;
@@ -165,50 +163,49 @@ void computeOrbit( LorenzPoincareMap & pm,
     // side that we left from... ??
     IVector imCenter = pm( center, period );
     imCenter = pm( imCenter, period );
-    imCenter = pm( imCenter, period );
   
     for ( int i=0; i<2; i++ )
       cout << "  image[" << i << "] = " << fixed << imCenter[i] << endl;
 
 
-    // derivative of PM on the set X,
-    IMatrix DP = pm . dx( X, period );
+    // // derivative of PM on the set X,
+    // IMatrix DP = pm . dx( X, period );
     
-    // and well known interval Newton operator
-    IVector N = center - capd::matrixAlgorithms::gauss( DP - IMatrix::Identity(2),
-    							imCenter - center );
+    // // and well known interval Newton operator
+    // IVector N = center - capd::matrixAlgorithms::gauss( DP - IMatrix::Identity(2),
+    // 							imCenter - center );
   
 }
 // ----------------------------------- MAIN ----------------------------------------
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   cout.precision(15);
   try{
     // Define an instance of LorenzPoincareMap
     int order = 35;
     int period = 1;
-    interval sigma = interval ( 10. );
-    interval rho = interval ( 28. );
-    interval beta = interval ( 8. ) / interval( 3. );
-    // interval lambda1 = interval ( 118 ) / interval ( 10. );
-    // interval lambda2 = interval ( -228 ) / interval ( 10. );
-    // interval lambda3 = interval ( -267 ) / interval ( 100. );
-    // interval k1 = interval ( 29. ) / interval ( 100. );
-    // interval k2 = interval ( 22. ) / interval ( 10. );
-    // interval k3 = interval ( -13. ) / interval ( 10. );
-    LorenzPoincareMap pm( order, sigma, rho, beta );
-    //LorenzPoincareMap pm( order, lambda1, lambda2, lambda3, k1, k2, k3 );
+    // interval sigma = interval ( 10. );
+    // interval rho = interval ( 28. );
+    // interval beta = interval ( 8. ) / interval( 3. );
+    interval lambda1 = interval ( 118. ) / interval ( 10. );
+    interval lambda2 = interval ( -228. ) / interval ( 10. );
+    interval lambda3 = interval ( -267. ) / interval ( 100. );
+    interval k1 = interval ( 29. ) / interval ( 100. );
+    interval k2 = interval ( 22. ) / interval ( 10. );
+    interval k3 = interval ( -13. ) / interval ( 10. );
+    //LorenzPoincareMap pm( order, sigma, rho, beta );
+    LorenzPoincareMap pm( order, lambda1, lambda2, lambda3, k1, k2, k3 );
 
     IVector center(2), X(2);
-    // For all the orbits below the size of set in which we verify the
-    // existence of an unique orbit is set to 7e-13 (up to the rounding:)
-    X[0] = X[1] = 3.5e-13*interval(-1,1);
+    // // For all the orbits below the size of set in which we verify the
+    // // existence of an unique orbit is set to 7e-13 (up to the rounding:)
+    // X[0] = X[1] = 3.5e-13*interval(-1,1);
 
 
     // box centers
-    center[0] = 1255. * 0.10546875 ; // * 2^{-8}
-    center[1] = 727. * 0.10546875 ; // * 2^{-8}
+    center[0] = 1255.;
+    center[1] = 727.;
     // center[0] = 1229.;
     // center[1] = 723.;
     //center += interval(-1,1) * 2e-1; 
