@@ -1,4 +1,4 @@
-/*   File: classes.h (BIAS)
+/*   File: classes.h (BIAS) --> CONVERTED TO CAPD
  
      Contains all class/struct definitions
      used in 'maintest'.
@@ -25,11 +25,12 @@
 /* #include "Vector.h"                    // PROFIL/BIAS header */
 
 #include "capd/capdAlglib.h"
-#include "capd/intervals/Interval.h"
+#include "capd/capdlib.h"
+//#include "capd/intervals/Interval.h"
 
 ////////////////////////////////////////////////////////////////////
 
-#include "error_handler.h"
+//#include "error_handler.h"
 
 ////////////////////////////////////////////////////////////////////
 
@@ -40,11 +41,11 @@ const short  DIM              = 3;
 //#define COMPUTE_C1 
 
 typedef PointBase< capd::intervals::Interval< double > > INTERVAL;
-typedef capd::vectalg::Vector<DInterval,0> IVector;
+typedef capd::vectalg::Vector<DInterval,0> INTERVAL_VECTOR;
 ////////////////////////////////////////////////////////////////////
 
-const INTERVAL PI = Succ(Hull(Constant::Pi));
-const INTERVAL DEG_TO_RAD = PI / 180.0;
+const INTERVAL INTERVAL::pi = Succ(Hull(Constant::Pi));
+const INTERVAL DEG_TO_RAD = INTERVAL::pi / 180.0;
 const INTERVAL RAD_TO_DEG = 180.0 / PI;
 
 INTERVAL Init_Interval  (const double   &, const double   &);
@@ -60,7 +61,7 @@ void     Show_Interval  (const INTERVAL &);
 
 ////////////////////////////////////////////////////////////////////
 
-#define BOX IVector  // CAPD version //INTERVAL_VECTOR    // Shorthand
+#define BOX INTERVAL_VECTOR    // Shorthand
 
 BOX  Center         (const BOX &);
 BOX  Radius         (const BOX &);

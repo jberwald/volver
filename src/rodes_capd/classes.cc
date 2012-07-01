@@ -18,6 +18,8 @@ INTERVAL Init_Interval(const double &lo, const double &hi)
 
 // Returns an INTERVAL containing        Called mid in BIAS, and
 // the center of an INTERVAL             there only returns a REAL
+// jjb - since CAPD mid returns an interval, we change here to just
+// using mid.
 INTERVAL Center(const INTERVAL &iv)
 { return Succ(Hull(mid(iv))); }
 
