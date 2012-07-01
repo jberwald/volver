@@ -1,0 +1,63 @@
+Introduction:
+
+The four programs used in my paper (coeff, smalldiv, rodes, and expansion)
+have been compiled under Linux and Solaris using the gcc compiler, versions
+
+Linux (i386-redhat-linux)
+   gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+
+Linux (i586-mandrake-linux)
+   gcc version 2.95.3 19991030 (prerelease)
+
+Solaris (sparc-sun-solaris2.5.1)
+   gcc version 2.95.2 19991024 (release)
+
+respectively. Basically, these programs should compile under any version,
+but the use of templates seems to cause some problems.
+
+Installing:
+
+All four programs use the PROFIL/BIAS package written by Olaf Knuppel. The
+package and its manual are available via anonymous ftp from
+
+      ti3sun.ti3.tu-harburg.de
+
+and can also be downloaded from the web at
+
+      http://www.ti3.tu-harburg.de/
+
+Once you have installed the PROFIL/BIAS package you may compile the programs
+by using the Makefile provided. First, however, you must modify the line in
+the Makefile specifying the path to the PROFIL/BIAS directory. 
+
+Depending on whether you are running the program under Linux or Solaris,
+you must also select the correct compiler flags in the Makefile.
+
+Pronto! Now you just type 'make' and see...
+
+Running:
+
+Once the rodes program has successfully been compiled, it may be run by
+simply typing 'rodes'. This will print instructions to the screen. Several 
+rodes programs can be run in parallel. They then share a file. As an
+example, the run presented in the article was initiated as follows:
+
+ nohup rodes 1 ShareFile 1255 727 8 0 10 > log_1.txt & 
+
+Don't forget the './' before 'rodes' on Linux machines. Also, the file
+'ShareFile' must exist and be empty upon the first process start. After 
+this, one may log in to other computers, and start new processes simply 
+by typing
+
+ nohup rodes 2 ShareFile > log_2.txt &
+
+ nohup rodes 3 ShareFile > log_3.txt &
+
+and so on. Of course, it is neccessary that all the computers can access the
+directory where the file 'ShareFile' is located. Also, it is crucial that
+the ID numbers given to the processes (1, 2, 3, etc) are all distinct. All
+of these processes will get and send data to the file 'ShareFile'. They will
+also print information to their logfiles. The command 'nohup' makes it 
+possible to log out of the computer without killing the current process.
+
+

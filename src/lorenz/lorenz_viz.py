@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import vtk
+import pyvtk
 from scipy import *
 from scipy import integrate
 from pylab import *
@@ -14,7 +14,8 @@ def Lorenz(w, t, S, R, B):
  
 w0 = array([0.0, 1.0, 0.0])
 time = linspace(0.0, 100.0, nbrPoints)
-S = 10.0; R = 28.0; B = 8.0/3.0
+#S = 10.0; R = 28.0; B = 8.0/3.0
+S = 10.0; R = 20.0; B = 8.0/3.0
  
 # Conditions initiales
 y0=array([-7.5, -3.6, 30.0])

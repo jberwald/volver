@@ -70,11 +70,7 @@ public:
 
     // we define a doubleton representation of the set
     C0Rect2Set theSet( px );
-    //for(int i=0;i<period;++i) // and compute period-iterations
     px = pm( theSet, period );
-
-    // cout << "after pm" << endl;
-    // cout << px << endl;
 
     // here we project the image 'x' onto 2-dimensional section
     //return IVector(2,x.begin()+1);
@@ -134,14 +130,12 @@ public:
 // parameters are:
 // pm - an instance of LorenzPoincareMap
 // center - a very good approximation of a periodic point on section, center is assume dto be 2-dimensional
-// X - interval vector in which we want to prove the existence of an unique periodic point.
 // period - is a period of the point for the Poincare map
 // Same as above function. Does not verify that N \cap X is
 // nonempty. We do truncate the image of the Poincare map so
 // computeOrbit() returns N \cap (domain)  -- not yet, but we will.
 void computeOrbit( LorenzPoincareMap & pm, 
 		   IVector center, 
-		   IVector X, 
 		   int period,
 		   int order )
 {
@@ -209,7 +203,7 @@ int main(int argc, char* argv[])
     // center[0] = 1229.;
     // center[1] = 723.;
     //center += interval(-1,1) * 2e-1; 
-    computeOrbit( pm, center, center, period, order );
+    computeOrbit( pm, center, period, order );
 
    }catch(exception& e)
   {
