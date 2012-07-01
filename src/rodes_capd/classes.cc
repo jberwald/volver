@@ -13,6 +13,7 @@
 // Initializes an 'INTERVAL' out of 
 // the two 'doubles' lo and hi. Used 
 // for external input of 'lo' and 'hi'.
+// **jjb -- Not sure why we don't just use INTERVAL here **
 INTERVAL Init_Interval(const double &lo, const double &hi) 
 { return Succ(Hull(lo, hi)); }
 
@@ -21,24 +22,30 @@ INTERVAL Init_Interval(const double &lo, const double &hi)
 // jjb - since CAPD mid returns an interval, we change here to just
 // using mid.
 INTERVAL Center(const INTERVAL &iv)
-{ return Succ(Hull(mid(iv))); }
+{ return mid(iv); }
 
 // Returns an INTERVAL containing
 // the radius of an INTERVAL
+// jjb - since CAPD diam returns an interval, we change here to just
+// using diam.
 INTERVAL Radius(const INTERVAL &iv)
-{ return Succ(Hull(diam(iv) / 2.0)); }
+{ return diam(iv) / 2.0; }
 
 // Returns an INTERVAL containing
 // the symmetric radius of an INTERVAL
 INTERVAL Symm_Radius(const INTERVAL &iv)
-{ return SymHull(diam(iv) / 2.0); }
+{  
+    INTERVAL _r = diam( iv ) / 2.0;
+    double r = _r . leftBound ( );
+    return INTERVAL( -r, r ); 
+}
 
 // Returns (by reference) intervals containing both
 // The center and the symmetric radius of 'iv'.
 void Mid_And_SymRad(INTERVAL &center, INTERVAL &symmrad, const INTERVAL &iv)
 {
-  symmrad = SymHull(diam(iv) / 2.0);
-  center = Succ(Hull(mid(iv)));
+    symmrad = Symm_Radius( iv ); //SymHull(diam(iv) / 2.0);
+    center = mid ( iv );
 }
 
 // Rescales the INTERVAL by a non-neg. factor, i.e.,
@@ -51,22 +58,24 @@ INTERVAL Rescale(const INTERVAL &iv, const double &factor)
 
 // Checks if the 'double' dbl is
 // contained in the 'INTERVAL' iv
+// The <= seems to work the same in CAPD
 bool Subset(const double &dbl, const INTERVAL &iv) 
-{ return (dbl <= iv); }
+{ return ( dbl <= iv ); }
 
 // Checks if the 'INTERVAL' iv1 is
 // a subset of the 'INTERVAL' iv2
 bool Subset(const INTERVAL &iv1, const INTERVAL &iv2)  
-{ return (iv1 <= iv2); }
+{ return ( iv1.subset ( iv2 ) ); }
 
 // Returns the sign of all numbers in iv
 // If iv contain zero, a warning message 
 // is printed, and zero is returned.
+// jjb -- replaced Sup, Inf with CAPD equivs
 int Sign(const INTERVAL &iv)
 {
-  if ( Sup(iv) < 0 )
+  if ( rightBound ( iv ) < 0 )
     return - 1;
-  if ( Inf(iv) > 0 )
+  if ( leftBound ( iv ) > 0 )
     return + 1;
 
   throw Error_Handler("Sign: The interval contains zero!");
@@ -76,26 +85,27 @@ int Sign(const INTERVAL &iv)
 // Prints an 'INTERVAL' to the standard output
 void Show_Interval(const INTERVAL &iv)
 {
-  cout.precision(NUMBER_OF_DIGITS);
-  cout.setf(ios::showpos);
-  cout.setf(ios::scientific);
+  cout.precision( NUMBER_OF_DIGITS );
+  cout.setf( ios::showpos );
+  cout.setf( ios::scientific );
   cout << "Showing interval (via fcn):" << endl
        << "[" << Inf(iv) << ", " << Sup(iv) << "];"
        << " dx = " << diam(iv) << endl;
-  cout.unsetf(ios::showpos);
-  cout.unsetf(ios::scientific);
+  cout.unsetf( ios::showpos );
+  cout.unsetf( ios::scientific );
 }
 
 ////////////////////////////////////////////////////////////////////
 
 // Returns a BOX containing
 // the center of a BOX
+// jjb -- grab the mid interval in each dimension
 BOX Center(const BOX &bx)
 {
   BOX temp(DIM);
 
   for (register short i = 1; i <= DIM; i++)
-    temp(i) = Succ(Hull(mid(bx(i)))); 
+    temp(i) = mid ( bx (i ) ); 
 
   return temp;
 }
@@ -107,7 +117,7 @@ BOX Radius(const BOX &bx)
   BOX temp(DIM);
 
   for (register short i = 1; i <= DIM; i++) 
-    temp(i) = Succ(Hull(diam(bx(i)) / 2.0));  
+    temp(i) = diam ( bx ( i ) ) / 2.0;  
 
   return temp;
 }
@@ -119,7 +129,7 @@ BOX Symm_Radius(const BOX &bx)
   BOX temp(DIM);
 
   for (register short i = 1; i <= DIM; i++)
-    temp(i) = SymHull(diam(bx(i)) / 2.0);
+    temp(i) = Sym_Radius ( bx(i) ); // jjb -- SymHull(diam(bx(i)) / 2.0);
 
   return temp;
 }
@@ -130,8 +140,8 @@ void Mid_And_SymRad(BOX &center, BOX &symmrad, const BOX &bx)
 {
   for (register short i = 1; i <= DIM; i++)
     {
-      symmrad(i) = SymHull(diam(bx(i)) / 2.0);
-      center(i) = Succ(Hull(mid(bx(i))));
+      symmrad(i) = Sym_Radius ( bx ( i ) );// jjb -- SymHull(diam(bx(i)) / 2.0);
+      center(i) = mid ( bx ( i ) );
     } 
 }
 
@@ -151,7 +161,7 @@ BOX Rescale(const BOX &bx, const double &factor)
 // Checks if the 'BOX' box1 is
 // a subset of the 'BOX' box2
 bool Subset(const BOX &box1, const BOX &box2)  
-{ return (box1 <= box2); }
+{ return ( box1.subset( box2 ) ); } //(box1 <= box2); }
 
 ////////////////////////////////////////////////////////////////////
 

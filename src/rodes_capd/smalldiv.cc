@@ -21,6 +21,8 @@
  * Input:         In my paper, I use smoothness = 10, and
  *                maximal order of resonance = 61. 
  *
+ * Modified: 120701, by jjb
+ *
  ************************************************************************/
 
 #include <stdio.h>
@@ -29,13 +31,17 @@
 #include <string.h>
 #include <time.h>
 
-#include "Interval.h"          /* PROFIL/BIAS header */
-#include "Functions.h"         /* PROFIL/BIAS header */
+// #include "Interval.h"          /* PROFIL/BIAS header */
+// #include "Functions.h"         /* PROFIL/BIAS header */
+
+#include "capd/capdlib.h"       // jjb 
 
 #define ANSW_SIZE 30
 #define FALSE 0
 #define TRUE 1
 
+// CAPD interval typedef
+typedef PointBase< capd::intervals::Interval< double > > INTERVAL;
 
 INTERVAL lu, lss, ls;           /* The eigenvalues of the origin */      
 INTERVAL R, S, B;               /* The parameter values */ 
@@ -51,9 +57,13 @@ void Init()
   char answer[ANSW_SIZE];  
   double fl_R, fl_S, fl_B;
 
-  R = Succ(Hull(28.0));
-  S = Succ(Hull(10.0));
-  B = Succ(Hull(8.0/3));
+  // Convert to CAPD
+    R = INTERVAL ( 28.0 ); 
+    S = INTERVAL ( 10.0 ); 
+    B = INTERVAL ( 8.0 ) / 3.0; 
+  // R = Succ(Hull(28.0));
+  // S = Succ(Hull(10.0));
+  // B = Succ(Hull(8.0/3));
   printf(" \n");
   printf("**************************************************************\n\n");
   printf("Enter the desired smoothness (10): ");
@@ -75,9 +85,9 @@ void Init()
       printf("Enter B: ");
       fgets(answer, sizeof(answer), stdin); 
       sscanf(answer, "%lf", &fl_B); 
-      R = Succ(Hull(fl_R));
-      S = Succ(Hull(fl_S));
-      B = Succ(Hull(fl_B));
+      R = INTERVAL ( fl_R ); //Succ(Hull(fl_R));
+      S = INTERVAL ( fl_S ); //Succ(Hull(fl_S));
+      B = INTERVAL ( fl_B ); //Succ(Hull(fl_B));
     }
   lu  = ( - (S + 1) + Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
   lss = ( - (S + 1) - Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
@@ -151,11 +161,11 @@ void Calculate()
 	divisor = sMin;     /* divisor = Omega(order) */	  
       printf("Smallest divisors of order %d:\n", order);
       printf("%d*lu + %d*lss + %d*ls - lu  = ", uMini,uMinj,uMink);
-      cout << uMin << " Diam = " << Diam(uMin) << endl;
+      cout << uMin << " diam = " << diam(uMin) << endl;
       printf("%d*lu + %d*lss + %d*ls - lss = ", ssMini,ssMinj,ssMink);
-      cout << ssMin << " Diam = " << Diam(ssMin) << endl;
+      cout << ssMin << " diam = " << diam(ssMin) << endl;
       printf("%d*lu + %d*lss + %d*ls - ls  = ", sMini,sMinj,sMink);
-      cout << sMin << " Diam = " << Diam(sMin) << endl << endl;
+      cout << sMin << " diam = " << diam(sMin) << endl << endl;
     }
 }
 

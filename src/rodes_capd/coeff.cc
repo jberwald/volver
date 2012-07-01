@@ -22,6 +22,9 @@
  * Input:         In my paper, I use smoothness = 10, and 
  *                maximal order of resonance = 70. 
  *
+ *
+ * Modified: 120701, by jjb
+ *
  ************************************************************************/
 
 #include <stdio.h>
@@ -29,14 +32,17 @@
 #include <math.h>
 #include <string.h>
 
-#include "Interval.h"             /* PROFIL/BIAS header */
-#include "Functions.h"            /* PROFIL/BIAS header */
+// #include "Interval.h"             /* PROFIL/BIAS header */
+// #include "Functions.h"            /* PROFIL/BIAS header */
+#include "capd/capdlib.h"
 
 #define ANSW_SIZE 30              /* Maximal size for answers */
 #define BIG 70                    /* Maximal computable order */
 #define FALSE 0
 #define TRUE 1
 
+// CAPD interval typedef
+typedef PointBase< capd::intervals::Interval< double > > INTERVAL;
 
 INTERVAL lu, lss, ls;             /* The eigenvalues of the origin */ 
 INTERVAL k1, k2, k3;              /* Constants in the equations */     
@@ -50,7 +56,6 @@ int order;                        /* Accumulated order */
 int Smoothness;                   /* Desired smoothness */
 long int total;                   /* The number of computed coefficients */
 
-
 /* Initializes the constants and gets the     */
 /* desired orders of resonance and smoothness */
 void Init()  
@@ -59,9 +64,10 @@ void Init()
   register int i, j, k;
   double fl_R, fl_S, fl_B;
 
-  R = Succ(Hull(28.0));
-  S = Succ(Hull(10.0));
-  B = Succ(Hull(8.0/3));
+  // jjb -- Initialize point intervals using CAPD
+    R = INTERVAL ( 28.0 ); //Succ(Hull(28.0));
+    S = INTERVAL ( 10.0 ); // Succ(Hull(10.0));
+    B = INTERVAL ( 8.0 ) / 3.0; // jjb -- make 8/3 representable Succ(Hull(8.0/3));
   printf(" \n");
   printf("**************************************************************\n\n");
   printf("Enter the desired smoothness (10): ");
@@ -83,9 +89,9 @@ void Init()
       printf("Enter B: ");
       fgets(answer, sizeof(answer), stdin); 
       sscanf(answer, "%lf", &fl_B); 
-      R = Succ(Hull(fl_R));
-      S = Succ(Hull(fl_S));
-      B = Succ(Hull(fl_B));
+      R = INTERVAL ( fl_R ); //Succ(Hull(fl_R));
+      S = INTERVAL ( fl_S ); //Succ(Hull(fl_S));
+      B = INTERVAL ( fl_B ); //Succ(Hull(fl_B));
     }
   lu  = ( - (S + 1) + Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
   lss = ( - (S + 1) - Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
@@ -168,7 +174,7 @@ void Multiply()
 	    }
 	}
     }
-}
+} // jjb END MULTIPLY
 
 
 /* Updates the coefficients from */
@@ -222,9 +228,9 @@ int main()
   Init();
   cout.precision(16);
   cout << endl << "Parameters:" << endl;
-  cout << "S = " << S << Diam(S) << endl;
-  cout << "R = " << R << Diam(R) << endl;
-  cout << "B = " << B << Diam(B) << endl;
+  cout << "S = " << S << diam(S) << endl;
+  cout << "R = " << R << diam(R) << endl;
+  cout << "B = " << B << diam(B) << endl;
   cout << endl << "Coefficients:" << endl;
   cout << "lu  = " << lu << endl;
   cout << "lss = " << lss << endl;

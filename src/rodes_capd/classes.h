@@ -24,13 +24,12 @@
 /* #include "Matrix.h"                    // PROFIL/BIAS header */
 /* #include "Vector.h"                    // PROFIL/BIAS header */
 
-#include "capd/capdAlglib.h"
 #include "capd/capdlib.h"
 //#include "capd/intervals/Interval.h"
 
 ////////////////////////////////////////////////////////////////////
 
-//#include "error_handler.h"
+#include "error_handler.h"
 
 ////////////////////////////////////////////////////////////////////
 
@@ -44,8 +43,8 @@ typedef PointBase< capd::intervals::Interval< double > > INTERVAL;
 typedef capd::vectalg::Vector<DInterval,0> INTERVAL_VECTOR;
 ////////////////////////////////////////////////////////////////////
 
-const INTERVAL INTERVAL::pi = Succ(Hull(Constant::Pi));
-const INTERVAL DEG_TO_RAD = INTERVAL::pi / 180.0;
+const INTERVAL PI = INTERVAL::pi; // jjb -- = Succ(Hull(Constant::Pi));
+const INTERVAL DEG_TO_RAD = PI / 180.0;
 const INTERVAL RAD_TO_DEG = 180.0 / PI;
 
 INTERVAL Init_Interval  (const double   &, const double   &);
