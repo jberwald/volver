@@ -29,16 +29,19 @@ INCLS   = -I$(LOC)/include
 CCPLUS  = g++
 
 # Use this line for Linux.
-CFLAGS  = -Wall -O2 -D__I386__
+CFLAGS  = -Wall -O2 #-D__I386__
 
 # Use this line for Solaris. 
-#CFLAGS  = -w -O2            
+#CFLAGS  = -w -O2   
+
+# Flags for CAPD
+CAPD_FLAGS = `/Users/jberwald/src/capd/bin/capd-config --cflags --libs`         
 
 # Enter the path for the PROFIL/BIAS directory here.
-PROFIL = /home/warwick/RODES/IA/MY_PROFIL
+#PROFIL = /home/warwick/RODES/IA/MY_PROFIL
 
-P_INCL = -I$(PROFIL)/incl -IBIAS
-P_LIBS = -L$(PROFIL)/lib -lProfil -LBIAS -lBias
+#P_INCL = -I$(PROFIL)/incl -IBIAS
+#P_LIBS = -L$(PROFIL)/lib -lProfil -LBIAS -lBias
 
 # -----------------------------------------------------------------------
 
@@ -66,7 +69,7 @@ clean:
 
 rodes: $(R_OBJS)
 	 @echo "Linking to PROFIL..."
-	 @$(CCPLUS) $(CFLAGS) $(P_INCL) -o $(R_EFILE) $(R_OBJS) $(P_LIBS)
+	 @$(CCPLUS) $(CFLAGS) $(P_INCL) -o $(R_EFILE) $(R_OBJS) $(CAPD_FLAGS)
 	 @echo "                    ... Pronto!"
 
 # -----------------------------------------------------------------------
@@ -94,31 +97,31 @@ coeff: $(C_MAIN)
 
 classes.o: classes.cc  classes.h 
 	@echo "Updating 'classes.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc 
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
 
 
 request.o: request.cc  request.h
 	@echo "Updating 'request.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
 
 vector_field.o: vector_field.cc  vector_field.h \
 	        classes.cc  classes.h   \
 	        error_handler.h 
 	@echo "Updating 'vector_field.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc 
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
 
 fixed_point.o: fixed_point.cc  fixed_point.h \
 	       classes.cc  classes.h  \
 	       list.h
 	@echo "Updating 'fixed_point.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc 
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
 
 low_functions.o: low_functions.cc low_functions.h \
 	         classes.cc  classes.h   \
 	         error_handler.h \
 	         vector_field.cc  vector_field.h
 	@echo "Updating 'low_functions.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc 
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
 
 flow_functions.o: flow_functions.cc flow_functions.h \
 	          list.h  error_handler.h \
@@ -126,7 +129,7 @@ flow_functions.o: flow_functions.cc flow_functions.h \
 	          low_functions.cc low_functions.h \
 	          vector_field.cc  vector_field.h
 	@echo "Updating 'flow_functions.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc 
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
 
 return_map.o: return_map.cc  return_map.h \
 	      classes.cc  classes.h \
@@ -135,13 +138,13 @@ return_map.o: return_map.cc  return_map.h \
 	      fixed_point.cc  fixed_point.h \
 	      low_functions.cc low_functions.h
 	@echo "Updating 'return_map.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
 
 convert.o: convert.cc convert.h classes.cc  classes.h \
 	   list.h 2d_classes.h \
 	   flow_functions.cc flow_functions.h 
 	@echo "Updating 'convert.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc 
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
 
 rodes.o:  rodes.cc \
 	 2d_classes.h list.h \
@@ -152,22 +155,22 @@ rodes.o:  rodes.cc \
 	 return_map.cc  return_map.h \
 	 fixed_point.cc  fixed_point.h
 	@echo "Updating 'rodes.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
 
 expansion.o: expansion.cc \
 	     classes.cc  classes.h \
 	     2d_classes.h \
 	     request.cc  request.h  list.h 
 	@echo "Updating 'expansion.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
 
 smalldiv.o: smalldiv.cc 
 	@echo "Updating 'smalldiv.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
 
 coeff.o: coeff.cc 
 	@echo "Updating 'coeff.o'"
-	@$(CCPLUS) $(CFLAGS) $(P_INCL) -c $*.cc
+	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
 
 # -----------------------------------------------------------------------
 

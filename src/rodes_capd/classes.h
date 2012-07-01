@@ -60,7 +60,11 @@ void     Show_Interval  (const INTERVAL &);
 
 ////////////////////////////////////////////////////////////////////
 
-#define BOX INTERVAL_VECTOR    // Shorthand
+//#define BOX INTERVAL_VECTOR    // Shorthand
+
+class BOX
+{
+    INTERVAL_VECTOR 
 
 BOX  Center         (const BOX &);
 BOX  Radius         (const BOX &);
@@ -71,6 +75,11 @@ bool Subset         (const BOX &, const BOX    &);
 
 ////////////////////////////////////////////////////////////////////
 
+// Redefine some of the global CAPD functions to align with common functions in RODES
+double Sup ( const INTERVAL & );
+double Inf ( const INTERVAL & );
+
+////////////////////////////////////////////////////////////////////
 class parcel
 {
 public:

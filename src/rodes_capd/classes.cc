@@ -207,3 +207,17 @@ ostream & operator << (ostream &out, const parcel &pcl)
 }
 
 ////////////////////////////////////////////////////////////////////
+// We recast common RODES functions to use CAPD global functions
+
+double Sup ( const INTERVAL &iv )
+{ 
+    return rightBound ( iv );
+}
+
+double Inf (const INTERVAL &iv )
+{
+    return leftBound( iv );
+}
+
+
+////////////////////////////////////////////////////////////////////
