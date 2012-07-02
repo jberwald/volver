@@ -11,11 +11,11 @@
 */
 
 
-#include <iostream.h>
-#include <fstream.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include <iostream>
+#include <fstream>
+#include <stdlib>
+#include <string>
+#include <time>
 
 #include "2d_classes.h"
 #include "classes.h"
@@ -43,7 +43,7 @@ enum command {START_TIMING, SHOW_TIMING, STOP_TIMING};
 
 extern "C" 
 {
-  static void sleep             (unsigned);
+   unsigned int sleep             (unsigned);
 }
 
 static void   print_info        (const char *);
@@ -59,6 +59,8 @@ static void   insert_it_List    (List<iterate> &, const char *,
 static void   update            (iterate &, const iterate &);
 
 ////////////////////////////////////////////////////////////////////
+
+//using namespace std;
 
 // Called by: none 
 // Calls to : 'Take_care_of_the_flags', 'get_a_grid', 
@@ -182,7 +184,9 @@ static void clock(const command &cmd)
 	cout << hours << " hour" << (hours != 1 ? "s, " : ", ");
       if ( minutes > 0)
 	cout << minutes << " minute" << (minutes != 1 ? "s, " : ", "); 
-      cout.setf(0, ios::floatfield);
+      // jjb -- changed to 'unsetf(ios...)' from setf( 0, ios...)
+      cout.unsetf( ios::floatfield );
+
       cout << seconds << " second" << (seconds != 1 ? "s." : ".") << endl; 
     }
 }
@@ -232,7 +236,10 @@ static void get_the_flags(iterate &it, const int &argc, char *argv[],
       it.ndl.grd.v = atoi(argv[4]); // v coordinate.
       it.ndl.grd.P = atoi(argv[5]); // diam = 2^-P.
 #ifdef COMPUTE_C1
-      it.ndl.ang = DEG_TO_RAD * Hull(atof(argv[6]), atof(argv[7]));
+      // CAPD intervalHull() takes iv1 and iv2 as args, so we convert
+      // the floats to intervals
+      it.ndl.ang = DEG_TO_RAD * intervalHull( interval( atof( argv[6]) ), 
+					      interval( atof( argv[7]) ) );
       it.ndl.pre_exp = LARGE_NUMBER;
       it.ndl.min_exp = LARGE_NUMBER;
 #endif
@@ -246,7 +253,8 @@ static void get_the_flags(iterate &it, const int &argc, char *argv[],
     } 
   else if ( argc == 8 + add ) // Load a rectangle -> several iterates.
     {
-      BOX rect; Resize(rect, 2);
+      BOX rect; 
+      Resize(rect, 2);
       double dbl[4];
       int power;
 
@@ -254,8 +262,10 @@ static void get_the_flags(iterate &it, const int &argc, char *argv[],
       dbl[2] = atof(argv[5]);  dbl[3] = atof(argv[6]);
       power = atoi(argv[7]);
 
-      rect(1) = Hull(dbl[0], dbl[1]);
-      rect(2) = Hull(dbl[2], dbl[3]);
+      rect(1) = intervalHull( interval( dbl[0] ), 
+			      interval( dbl[1] ) );
+      rect(2) = intervalHull( interval( dbl[2] ), 
+			      interval( dbl[3] ) );
       cout << "rect:" << endl << rect << endl;
       rect_to_it_List(rect, power, it_List); // rectangle -> several iterates.
 #ifdef COMPUTE_C1
