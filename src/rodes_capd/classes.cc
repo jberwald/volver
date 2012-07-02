@@ -10,68 +10,68 @@
 
 ////////////////////////////////////////////////////////////////////
 
-// Initializes an 'INTERVAL' out of 
+// Initializes an 'interval' out of 
 // the two 'doubles' lo and hi. Used 
 // for external input of 'lo' and 'hi'.
-// **jjb -- Not sure why we don't just use INTERVAL here **
-INTERVAL Init_Interval(const double &lo, const double &hi) 
+// **jjb -- Not sure why we don't just use interval here **
+interval Init_Interval(const double &lo, const double &hi) 
 { return Succ(Hull(lo, hi)); }
 
-// Returns an INTERVAL containing        Called mid in BIAS, and
-// the center of an INTERVAL             there only returns a REAL
+// Returns an interval containing        Called mid in BIAS, and
+// the center of an interval             there only returns a REAL
 // jjb - since CAPD mid returns an interval, we change here to just
 // using mid.
-INTERVAL Center(const INTERVAL &iv)
+interval Center(const interval &iv)
 { return mid(iv); }
 
-// Returns an INTERVAL containing
-// the radius of an INTERVAL
+// Returns an interval containing
+// the radius of an interval
 // jjb - since CAPD diam returns an interval, we change here to just
 // using diam.
-INTERVAL Radius(const INTERVAL &iv)
+interval Radius(const interval &iv)
 { return diam(iv) / 2.0; }
 
-// Returns an INTERVAL containing
-// the symmetric radius of an INTERVAL
-INTERVAL Symm_Radius(const INTERVAL &iv)
+// Returns an interval containing
+// the symmetric radius of an interval
+interval Symm_Radius(const interval &iv)
 {  
-    INTERVAL _r = diam( iv ) / 2.0;
+    interval _r = diam( iv ) / 2.0;
     double r = _r . leftBound ( );
-    return INTERVAL( -r, r ); 
+    return interval( -r, r ); 
 }
 
 // Returns (by reference) intervals containing both
 // The center and the symmetric radius of 'iv'.
-void Mid_And_SymRad(INTERVAL &center, INTERVAL &symmrad, const INTERVAL &iv)
+void Mid_And_SymRad(interval &center, interval &symmrad, const interval &iv)
 {
     symmrad = Symm_Radius( iv ); //SymHull(diam(iv) / 2.0);
     center = mid ( iv );
 }
 
-// Rescales the INTERVAL by a non-neg. factor, i.e.,
+// Rescales the interval by a non-neg. factor, i.e.,
 // radius([iv_out]) = factor*radius([iv_in]);
 // center([iv_out]) = center([iv_in]);
-INTERVAL Rescale(const INTERVAL &iv, const double &factor)
+interval Rescale(const interval &iv, const double &factor)
 {
-  return INTERVAL (Center(iv) + factor * Symm_Radius(iv));
+  return interval (Center(iv) + factor * Symm_Radius(iv));
 }
 
 // Checks if the 'double' dbl is
-// contained in the 'INTERVAL' iv
+// contained in the 'interval' iv
 // The <= seems to work the same in CAPD
-bool Subset(const double &dbl, const INTERVAL &iv) 
+bool Subset(const double &dbl, const interval &iv) 
 { return ( dbl <= iv ); }
 
-// Checks if the 'INTERVAL' iv1 is
-// a subset of the 'INTERVAL' iv2
-bool Subset(const INTERVAL &iv1, const INTERVAL &iv2)  
+// Checks if the 'interval' iv1 is
+// a subset of the 'interval' iv2
+bool Subset(const interval &iv1, const interval &iv2)  
 { return ( iv1.subset ( iv2 ) ); }
 
 // Returns the sign of all numbers in iv
 // If iv contain zero, a warning message 
 // is printed, and zero is returned.
 // jjb -- replaced Sup, Inf with CAPD equivs
-int Sign(const INTERVAL &iv)
+int Sign(const interval &iv)
 {
   if ( rightBound ( iv ) < 0 )
     return - 1;
@@ -82,8 +82,8 @@ int Sign(const INTERVAL &iv)
   return 0;
 }
 
-// Prints an 'INTERVAL' to the standard output
-void Show_Interval(const INTERVAL &iv)
+// Prints an 'interval' to the standard output
+void Show_Interval(const interval &iv)
 {
   cout.precision( NUMBER_OF_DIGITS );
   cout.setf( ios::showpos );
@@ -196,7 +196,7 @@ ostream & operator << (ostream &out, const parcel &pcl)
       out << pcl.box(i) << "; dx = " << diam(pcl.box(i)) << endl;
     }
 #ifdef COMPUTE_C1
-  INTERVAL angles = RAD_TO_DEG * pcl.angles;
+  interval angles = RAD_TO_DEG * pcl.angles;
   out << "  ang  = " << angles << "; da = " << diam(angles) << " (deg)\n"
       << "  exp  = " << pcl.expansion << "; de = " << diam(pcl.expansion)<< endl;
 #endif
@@ -209,12 +209,12 @@ ostream & operator << (ostream &out, const parcel &pcl)
 ////////////////////////////////////////////////////////////////////
 // We recast common RODES functions to use CAPD global functions
 
-double Sup ( const INTERVAL &iv )
+double Sup ( const interval &iv )
 { 
     return rightBound ( iv );
 }
 
-double Inf (const INTERVAL &iv )
+double Inf (const interval &iv )
 {
     return leftBound( iv );
 }

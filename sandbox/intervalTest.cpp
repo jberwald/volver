@@ -4,16 +4,18 @@
 #include <iomanip>
 #include <cmath>
 
-#include "capd/capdlib.h"
-// #include "capd/rounding/DoubleRounding.h"
-// #include "capd/intervals/DoubleInterval.h"
-// #include "capd/intervals/IntervalError.h"
+//#include "capd/capdlib.h"
+#include "capd/rounding/DoubleRounding.h"
+#include "capd/intervals/DoubleInterval.h"
+#include "capd/intervals/IntervalError.h"
 
 using namespace std;
 
-typedef capd::intervals::Interval< double > DInterval;
-typedef capd::vectalg::Vector<DInterval,2> IVector;
+//typedef long INTERVAL;
 
+//typedef capd::intervals::Interval< double > DInterval;
+typedef int INTERVAL;
+//typedef capd::vectalg::Vector< interval, 2> IVector;
 
 namespace capd{
 namespace test{
@@ -93,31 +95,36 @@ void operatorsTest()
 bool rodesTests()
 {
     interval a ( 1.0, 3.0 );
-    interval _r = diam( a ) / 2.0;
+
+    cout << "a = " << a << endl;
+
+    IVAL _r = diam( a ) / 2.0;
     double r = _r . leftBound ( );
-    interval symhull ( -r, r );
+    IVAL symhull ( -r, r );
     cout << "symhull = " << symhull << endl;
 
-    interval c( 1.0, 2.0 );
-    cout << "c contained in a: " << (c.subset( a ) ) << endl;
+    IVAL c( 1.0, 2.0 );
+    cout << "c contained in a: " << ( c.subset( a ) ) << endl;
 
-    IVector Box(2);
-    Box[0] = a ;
-    Box[1] = c ;
-    cout << "the box" << Box << endl;
+    // IVector Box; //(2);
+    // Box[0] = a ;
+    // Box[1] = c ;
+    // cout << "the box " << Box << endl;
+
+    cout << "PI " << IVAL::pi() << endl;
 
     return true;
 }
 
-class BOX::IVector
-{
-public:
-  int DIM = 2;
-  BOX ( interval a, interval b );
-};
+// class BOX::IVector
+// {
+// public:
+//   int DIM = 2;
+//   BOX ( interval a, interval b );
+// };
 
-BOX::BOX ( interval a, interval b ) 
-{ 
+// BOX::BOX ( interval a, interval b ) 
+// { 
     
 
 
