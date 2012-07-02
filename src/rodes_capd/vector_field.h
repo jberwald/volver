@@ -33,42 +33,42 @@ const double E3 = - B;
 // Rigorous Constants from here.
 
 // Intervals constructed only once
-const INTERVAL S_IV = Init_Interval(S, S);
-const INTERVAL R_IV = Init_Interval(R, R);
-const INTERVAL B_IV = Init_Interval(B, B);
+const interval S_IV = Init_Interval(S, S);
+const interval R_IV = Init_Interval(R, R);
+const interval B_IV = Init_Interval(B, B);
 
 // Parameters in the Jordan normal form
-const INTERVAL TEMP_IV = Sqrt((S_IV + 1)*(S_IV + 1) + 4*S_IV*(R_IV - 1));
-const INTERVAL K1_IV = S_IV/TEMP_IV;
-const INTERVAL K2_IV = (S_IV - 1 + TEMP_IV)/(2*S_IV);
-const INTERVAL K3_IV = (S_IV - 1 - TEMP_IV)/(2*S_IV);
+const interval TEMP_IV = sqrt((S_IV + 1)*(S_IV + 1) + 4*S_IV*(R_IV - 1));
+const interval K1_IV = S_IV/TEMP_IV;
+const interval K2_IV = (S_IV - 1 + TEMP_IV)/(2*S_IV);
+const interval K3_IV = (S_IV - 1 - TEMP_IV)/(2*S_IV);
 
 // Eigenvalues at the origin
-const INTERVAL E1_IV = (-(S_IV + 1) + TEMP_IV)/2;
-const INTERVAL E2_IV = (-(S_IV + 1) - TEMP_IV)/2;
-const INTERVAL E3_IV = -B_IV;
+const interval E1_IV = (-(S_IV + 1) + TEMP_IV)/2;
+const interval E2_IV = (-(S_IV + 1) - TEMP_IV)/2;
+const interval E3_IV = -B_IV;
 
 // Shortcuts
-const INTERVAL K2_PLUS_K3_IV = K2_IV + K3_IV; 
-const INTERVAL TWO_K2_IV = 2 * K2_IV; 
-const INTERVAL TWO_K3_IV = 2 * K3_IV; 
-const INTERVAL ZERO_IV(0.0);
-const INTERVAL ONE_IV(1.0);
+const interval K2_PLUS_K3_IV = K2_IV + K3_IV; 
+const interval TWO_K2_IV = 2 * K2_IV; 
+const interval TWO_K3_IV = 2 * K3_IV; 
+const interval ZERO_IV(0.0);
+const interval ONE_IV(1.0);
 
 ////////////////////////////////////////////////////////////////////
 
-void     NR_Vf_Range(VECTOR &, const VECTOR &);
+void     NR_Vf_Range(IVector &, const IVector &);
 
 BOX      Vf_Range (const BOX &); 
 void     Vf_Range (BOX &, const BOX &);
 
-INTERVAL Vf_Range (const BOX &, const short &);
-void     Vf_Range (INTERVAL &, const BOX &, const short &);
+interval Vf_Range (const BOX &, const short &);
+void     Vf_Range (interval &, const BOX &, const short &);
 
-void     DVf_Range(INTERVAL_MATRIX &, const BOX &);
+void     DVf_Range(IMatrix &, const BOX &);
 
-INTERVAL DVf_Range(const BOX &, const short &, const short &);
-void     DVf_Range(INTERVAL &, const BOX &, const short &, const short &);
+interval DVf_Range(const BOX &, const short &, const short &);
+void     DVf_Range(interval &, const BOX &, const short &, const short &);
 
 ////////////////////////////////////////////////////////////////////
 

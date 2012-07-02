@@ -11,15 +11,15 @@
 
 static void Naive_Vf_Range(BOX      &, const BOX &);
 
-static void Naive_Vf_Range(INTERVAL &, const BOX &, const short &);
+static void Naive_Vf_Range(interval &, const BOX &, const short &);
 
 static void DVf_Range     (BOX      &, const BOX &, const short &);
 
 ////////////////////////////////////////////////////////////////////
 
-// Returns a VECTOR containing the range of 
+// Returns a IVector containing the range of 
 // the 'lorenz' vector field w.r.t. the BOX bx.           
-void NR_Vf_Range(VECTOR &result, const VECTOR &v)
+void NR_Vf_Range(IVector &result, const IVector &v)
 {
   double C1 = v(1) + v(2);
   double C2 = K1 * C1 * v(3);
@@ -35,8 +35,8 @@ void NR_Vf_Range(VECTOR &result, const VECTOR &v)
 // the 'lorenz' vector field w.r.t. the BOX bx.           
 static void Naive_Vf_Range(BOX &result, const BOX &bx)
 {
-  INTERVAL C1 = bx(1) + bx(2);
-  INTERVAL C2 = K1_IV * C1 * bx(3);
+  interval C1 = bx(1) + bx(2);
+  interval C2 = K1_IV * C1 * bx(3);
 
   result(1) = E1_IV * bx(1) - C2;
   result(2) = E2_IV * bx(2) + C2;
@@ -48,10 +48,10 @@ static void Naive_Vf_Range(BOX &result, const BOX &bx)
 // Its MVT approach
 BOX Vf_Range(const BOX &bx)
 {
-  BOX center(DIM);
-  BOX symmrad(DIM);
-  BOX vf_box(DIM);
-  INTERVAL_MATRIX DVf(DIM, DIM);
+  BOX center(SYSDIM);
+  BOX symmrad(SYSDIM);
+  BOX vf_box(SYSDIM);
+  IMatrix DVf(SYSDIM, SYSDIM);
 
   Mid_And_SymRad(center, symmrad, bx);
   Naive_Vf_Range(vf_box, center);
@@ -64,10 +64,10 @@ BOX Vf_Range(const BOX &bx)
 
 void Vf_Range(BOX &result, const BOX &bx)
 {
-  static BOX center(DIM);
-  static BOX symmrad(DIM);
-  static BOX vf_box(DIM);
-  static INTERVAL_MATRIX DVf(DIM, DIM);
+  static BOX center(SYSDIM);
+  static BOX symmrad(SYSDIM);
+  static BOX vf_box(SYSDIM);
+  static IMatrix DVf(SYSDIM, SYSDIM);
 
   Mid_And_SymRad(center, symmrad, bx);
   Naive_Vf_Range(vf_box, center);
@@ -78,10 +78,10 @@ void Vf_Range(BOX &result, const BOX &bx)
 
 ////////////////////////////////////////////////////////////////////
 
-// Returns an INTERVAL containing the range of 
+// Returns an interval containing the range of 
 // the i:th component of the 'lorenz' vector field 
 // w.r.t. the BOX bx.
-static void Naive_Vf_Range(INTERVAL &result, const BOX &bx, const short &i)
+static void Naive_Vf_Range(interval &result, const BOX &bx, const short &i)
 {
   if ( i == 1 )
     result = E1_IV * bx(1) - K1_IV * (bx(1) + bx(2)) * bx(3);
@@ -99,12 +99,12 @@ static void Naive_Vf_Range(INTERVAL &result, const BOX &bx, const short &i)
 ////////////////////////////////////////////////////////////////////
 
 // Its MVT approach
-INTERVAL Vf_Range(const BOX &bx, const short &i)
+interval Vf_Range(const BOX &bx, const short &i)
 {
-  INTERVAL vf_center;
-  BOX center(DIM);
-  BOX symmrad(DIM);
-  BOX DVf_row(DIM);
+  interval vf_center;
+  BOX center(SYSDIM);
+  BOX symmrad(SYSDIM);
+  BOX DVf_row(SYSDIM);
 
   Mid_And_SymRad(center, symmrad, bx);
   Naive_Vf_Range(vf_center, center, i);
@@ -115,12 +115,12 @@ INTERVAL Vf_Range(const BOX &bx, const short &i)
 
 ////////////////////////////////////////////////////////////////////
 
-void Vf_Range(INTERVAL &result, const BOX &bx, const short &i)
+void Vf_Range(interval &result, const BOX &bx, const short &i)
 {
-  INTERVAL vf_center;
-  BOX center(DIM);
-  BOX symmrad(DIM);
-  BOX DVf_row(DIM);
+  interval vf_center;
+  BOX center(SYSDIM);
+  BOX symmrad(SYSDIM);
+  BOX DVf_row(SYSDIM);
 
   Mid_And_SymRad(center, symmrad, bx);
   Naive_Vf_Range(vf_center, center, i);
@@ -133,10 +133,10 @@ void Vf_Range(INTERVAL &result, const BOX &bx, const short &i)
 
 // Returns the partial derivatives of
 // the vector field Vf_Range wrt the BOX bx
-void DVf_Range(INTERVAL_MATRIX &result, const BOX &bx)
+void DVf_Range(IMatrix &result, const BOX &bx)
 {
-  INTERVAL C1 = K1_IV * (bx(1) + bx(2));
-  INTERVAL C2 = K1_IV * bx(3);
+  interval C1 = K1_IV * (bx(1) + bx(2));
+  interval C2 = K1_IV * bx(3);
 
   result(1, 1) = E1_IV - C2;
   result(1, 2) = - C2;
@@ -155,8 +155,8 @@ void DVf_Range(INTERVAL_MATRIX &result, const BOX &bx)
 // of the vector field Vf_Range wrt the BOX bx
 static void DVf_Range(BOX &result, const BOX &bx, const short &i)
 {
-  INTERVAL C1 = K1_IV * (bx(1) + bx(2));
-  INTERVAL C2 = K1_IV * bx(3);
+  interval C1 = K1_IV * (bx(1) + bx(2));
+  interval C2 = K1_IV * bx(3);
 
   if ( i == 1 )
     {
@@ -187,7 +187,7 @@ static void DVf_Range(BOX &result, const BOX &bx, const short &i)
 
 // Returns the (i,j)-partial derivative of
 // the vector field Vf_Range wrt the BOX bx
-INTERVAL DVf_Range(const BOX &bx, const short &i, const short &j)
+interval DVf_Range(const BOX &bx, const short &i, const short &j)
 {
   if (i == 1)
     {
@@ -223,7 +223,7 @@ INTERVAL DVf_Range(const BOX &bx, const short &i, const short &j)
 
 ////////////////////////////////////////////////////////////////////
 
-void DVf_Range(INTERVAL &result, const BOX &bx, const short &i, const short &j)
+void DVf_Range(interval &result, const BOX &bx, const short &i, const short &j)
 {
   if (i == 1)
     {

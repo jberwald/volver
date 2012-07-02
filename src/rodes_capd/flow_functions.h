@@ -27,13 +27,13 @@ void Single_Partition     (const parcel &, List<parcel> &, const double &);
 
 void Get_Hull             (parcel &, List<parcel> &);
 
-void Get_DPi_Matrix       (INTERVAL_MATRIX &, const BOX &, const short &, 
-			   const INTERVAL &, const BOX &);
+void Get_DPi_Matrix       (IMatrix &, const BOX &, const short &, 
+			   const interval &, const BOX &);
 
-void Get_Flow_Time        (INTERVAL &, parcel &, const double &, BOX &);
+void Get_Flow_Time        (interval &, parcel &, const double &, BOX &);
 
 void Flow_Tangent_Vectors (parcel &, const short &, const short &, 
-			   const INTERVAL_MATRIX &);
+			   const IMatrix &);
 
 ////////////////////////////////////////////////////////////////////
 

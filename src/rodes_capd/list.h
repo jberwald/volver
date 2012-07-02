@@ -55,14 +55,17 @@ public:
   void operator *=  (const TYPE &);
   void operator --  ();
 
-#ifdef __linux
+
+  // We will not be using sparc, but will be using mac and
+  // linux. Hopefully this works on both OSX and Linux.
+  //#ifdef __linux
   friend TYPE & First   <TYPE>(List &);
   friend TYPE & Next    <TYPE>(List &);
   friend TYPE & Last    <TYPE>(const List &);
   friend TYPE & Current <TYPE>(const List &);
   friend void RemoveCurrent <TYPE>(List &);
   friend ostream & operator << <TYPE>(ostream &, const List &);
-#endif // __linux
+  //#endif // __linux
 
 #ifdef __sparc
   friend TYPE & First   (List & li)

@@ -15,7 +15,7 @@
 // for external input of 'lo' and 'hi'.
 // **jjb -- Not sure why we don't just use interval here **
 interval Init_Interval(const double &lo, const double &hi) 
-{ return Succ(Hull(lo, hi)); }
+{ return interval( lo, hi ); } //Succ(Hull(lo, hi)); }
 
 // Returns an interval containing        Called mid in BIAS, and
 // the center of an interval             there only returns a REAL
@@ -58,7 +58,7 @@ interval Rescale(const interval &iv, const double &factor)
 
 // Checks if the 'double' dbl is
 // contained in the 'interval' iv
-// The <= seems to work the same in CAPD
+// jb -- The <= seems to work the same in CAPD
 bool Subset(const double &dbl, const interval &iv) 
 { return ( dbl <= iv ); }
 
@@ -102,9 +102,9 @@ void Show_Interval(const interval &iv)
 // jjb -- grab the mid interval in each dimension
 BOX Center(const BOX &bx)
 {
-  BOX temp(DIM);
+  BOX temp(SYSDIM);
 
-  for (register short i = 1; i <= DIM; i++)
+  for (register short i = 1; i <= SYSDIM; i++)
     temp(i) = mid ( bx (i ) ); 
 
   return temp;
@@ -114,9 +114,9 @@ BOX Center(const BOX &bx)
 // the radius of a BOX
 BOX Radius(const BOX &bx)
 {
-  BOX temp(DIM);
+  BOX temp(SYSDIM);
 
-  for (register short i = 1; i <= DIM; i++) 
+  for (register short i = 1; i <= SYSDIM; i++) 
     temp(i) = diam ( bx ( i ) ) / 2.0;  
 
   return temp;
@@ -126,10 +126,10 @@ BOX Radius(const BOX &bx)
 // the symmetric radius of a BOX
 BOX Symm_Radius(const BOX &bx)
 {
-  BOX temp(DIM);
+  BOX temp(SYSDIM);
 
-  for (register short i = 1; i <= DIM; i++)
-    temp(i) = Sym_Radius ( bx(i) ); // jjb -- SymHull(diam(bx(i)) / 2.0);
+  for (register short i = 1; i <= SYSDIM; i++)
+    temp(i) = Symm_Radius ( bx(i) ); // jjb -- SymHull(diam(bx(i)) / 2.0);
 
   return temp;
 }
@@ -138,9 +138,9 @@ BOX Symm_Radius(const BOX &bx)
 // The center and the symmetric radius of 'bx'.
 void Mid_And_SymRad(BOX &center, BOX &symmrad, const BOX &bx)
 {
-  for (register short i = 1; i <= DIM; i++)
+  for (register short i = 1; i <= SYSDIM; i++)
     {
-      symmrad(i) = Sym_Radius ( bx ( i ) );// jjb -- SymHull(diam(bx(i)) / 2.0);
+      symmrad(i) = Symm_Radius ( bx ( i ) );// jjb -- SymHull(diam(bx(i)) / 2.0);
       center(i) = mid ( bx ( i ) );
     } 
 }
@@ -150,9 +150,9 @@ void Mid_And_SymRad(BOX &center, BOX &symmrad, const BOX &bx)
 // center([bx_out]) = center([bx_in]);
 BOX Rescale(const BOX &bx, const double &factor)
 {
-  BOX result(DIM);
+  BOX result(SYSDIM);
 
-  for (register short i = 1; i <= DIM; i++)
+  for (register short i = 1; i <= SYSDIM; i++)
     result(i) = Center(bx(i)) + factor * Symm_Radius(bx(i));
       
   return result;
@@ -161,19 +161,22 @@ BOX Rescale(const BOX &bx, const double &factor)
 // Checks if the 'BOX' box1 is
 // a subset of the 'BOX' box2
 bool Subset(const BOX &box1, const BOX &box2)  
-{ return ( box1.subset( box2 ) ); } //(box1 <= box2); }
+{ return ( subset( box1, box2 ) ); } //(box1 <= box2); }
 
 ////////////////////////////////////////////////////////////////////
 
+// jjb -- Hull used to overload PROFIL's Hull(interval,interval). 
 parcel Hull(const parcel &pcl_1, const parcel &pcl_2)
 {
   parcel result = pcl_1;
-
-  result.box  = Hull(pcl_1.box,  pcl_2.box);
-  result.time = Hull(pcl_1.time, pcl_2.time);
+    
+  // jjb -- CAPD global function 'intervalHull' replaces PROFIL's
+  // 'Hull(interval,interval)'
+  result.box  = intervalHull(pcl_1.box,  pcl_2.box);
+  result.time = intervalHull(pcl_1.time, pcl_2.time);
 #ifdef COMPUTE_C1
-  result.angles = Hull(pcl_1.angles, pcl_2.angles);
-  result.expansion = Hull(pcl_1.expansion, pcl_2.expansion);
+  result.angles = intervalHull(pcl_1.angles, pcl_2.angles);
+  result.expansion = intervalHull(pcl_1.expansion, pcl_2.expansion);
 #endif  
   return result;
 }
@@ -189,7 +192,7 @@ ostream & operator << (ostream &out, const parcel &pcl)
       << ";  message = " << pcl.message << endl;
   out << "  time = " << pcl.time << "; dt = " << diam(pcl.time) << endl;
   out << "  box  = ";
-  for ( int i = 1; i <= Dimension(pcl.box); i++ ) 
+    for ( int i = 1; i <= pcl.box.dimension( ); i++ ) 
     {
       if ( i != 1 )
 	out << "         ";
@@ -214,7 +217,7 @@ double Sup ( const interval &iv )
     return rightBound ( iv );
 }
 
-double Inf (const interval &iv )
+double Inf ( const interval &iv )
 {
     return leftBound( iv );
 }

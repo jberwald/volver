@@ -10,7 +10,7 @@
  *
  * Purpose:       Calculates and expresses the smallest divisors
  *                up to a given maximal order and smoothness. 
- *                Uses the INTERVAL class from PROFIL/BIAS.
+ *                Uses the interval class from PROFIL/BIAS.
  *
  * Project:       The Lorenz Attractor Exists
  *
@@ -41,11 +41,11 @@
 #define TRUE 1
 
 // CAPD interval typedef
-typedef PointBase< capd::intervals::Interval< double > > INTERVAL;
+typedef PointBase< capd::intervals::Interval< double > > interval;
 
-INTERVAL lu, lss, ls;           /* The eigenvalues of the origin */      
-INTERVAL R, S, B;               /* The parameter values */ 
-INTERVAL uMin,ssMin,sMin;       /* The smallest divisors */
+interval lu, lss, ls;           /* The eigenvalues of the origin */      
+interval R, S, B;               /* The parameter values */ 
+interval uMin,ssMin,sMin;       /* The smallest divisors */
 int total;                      /* Total number of iterates */ 
 int MaxOrder, Smoothness;       /* Desired maximal order and smoothness */
 
@@ -58,9 +58,9 @@ void Init()
   double fl_R, fl_S, fl_B;
 
   // Convert to CAPD
-    R = INTERVAL ( 28.0 ); 
-    S = INTERVAL ( 10.0 ); 
-    B = INTERVAL ( 8.0 ) / 3.0; 
+    R = interval ( 28.0 ); 
+    S = interval ( 10.0 ); 
+    B = interval ( 8.0 ) / 3.0; 
   // R = Succ(Hull(28.0));
   // S = Succ(Hull(10.0));
   // B = Succ(Hull(8.0/3));
@@ -85,9 +85,9 @@ void Init()
       printf("Enter B: ");
       fgets(answer, sizeof(answer), stdin); 
       sscanf(answer, "%lf", &fl_B); 
-      R = INTERVAL ( fl_R ); //Succ(Hull(fl_R));
-      S = INTERVAL ( fl_S ); //Succ(Hull(fl_S));
-      B = INTERVAL ( fl_B ); //Succ(Hull(fl_B));
+      R = interval ( fl_R ); //Succ(Hull(fl_R));
+      S = interval ( fl_S ); //Succ(Hull(fl_S));
+      B = interval ( fl_B ); //Succ(Hull(fl_B));
     }
   lu  = ( - (S + 1) + Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
   lss = ( - (S + 1) - Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
@@ -104,7 +104,7 @@ void Calculate()
   int uMini=0,uMinj=0,uMink=0;   /* Minimizing coefficients wrt lu */
   int ssMini=0,ssMinj=0,ssMink=0;/* Minimizing coefficients wrt lss */
   int sMini=0,sMinj=0,sMink=0;   /* Minimizing coefficients wrt ls */
-  INTERVAL divisor;              /* Current divisor */
+  interval divisor;              /* Current divisor */
            
   cout.precision(16);
   total = 0;
@@ -122,7 +122,7 @@ void Calculate()
 	      n3 = order - n1 - n2;           
 	      if ( (n1 < Smoothness) || (n2 + n3 < Smoothness) )  /* The filter */
 		{
-		  INTERVAL temp;
+		  interval temp;
 		  temp    = n1*lu + n2*lss + n3*ls - lu;
 		  divisor = Hull(Mig(temp), Abs(temp));
 		  if ( Inf(divisor) < Inf(uMin) ) 

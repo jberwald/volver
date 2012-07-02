@@ -10,7 +10,7 @@
  *
  * Purpose:       Calculates the coefficients a_{i,n} of the transformation
  *                in Prop.3.1, computes b_n = max_i |a_{i,n}|, and finally 
- *                constructs c_k = sum_{|n|=k} b_n. Uses the INTERVAL class
+ *                constructs c_k = sum_{|n|=k} b_n. Uses the interval class
  *                from PROFIL/BIAS.
  *
  * Project:       The Lorenz Attractor Exists
@@ -42,15 +42,15 @@
 #define TRUE 1
 
 // CAPD interval typedef
-typedef PointBase< capd::intervals::Interval< double > > INTERVAL;
+typedef PointBase< capd::intervals::Interval< double > > interval;
 
-INTERVAL lu, lss, ls;             /* The eigenvalues of the origin */ 
-INTERVAL k1, k2, k3;              /* Constants in the equations */     
-INTERVAL R, S, B;                 /* The parameter values */ 
-INTERVAL A[3][BIG][BIG][BIG];     /* The computed coefficients */
-INTERVAL C[BIG];                  /* C[k] = sum_{|n|=k} max_i |a_{i,n}| */
-INTERVAL T[2][BIG][BIG][BIG];     /* Two sums */
-INTERVAL M[2][BIG][BIG][BIG];     /* Two products */
+interval lu, lss, ls;             /* The eigenvalues of the origin */ 
+interval k1, k2, k3;              /* Constants in the equations */     
+interval R, S, B;                 /* The parameter values */ 
+interval A[3][BIG][BIG][BIG];     /* The computed coefficients */
+interval C[BIG];                  /* C[k] = sum_{|n|=k} max_i |a_{i,n}| */
+interval T[2][BIG][BIG][BIG];     /* Two sums */
+interval M[2][BIG][BIG][BIG];     /* Two products */
 int MaxOrder;                     /* Desired maximal order */ 
 int order;                        /* Accumulated order */
 int Smoothness;                   /* Desired smoothness */
@@ -65,9 +65,9 @@ void Init()
   double fl_R, fl_S, fl_B;
 
   // jjb -- Initialize point intervals using CAPD
-    R = INTERVAL ( 28.0 ); //Succ(Hull(28.0));
-    S = INTERVAL ( 10.0 ); // Succ(Hull(10.0));
-    B = INTERVAL ( 8.0 ) / 3.0; // jjb -- make 8/3 representable Succ(Hull(8.0/3));
+    R = interval ( 28.0 ); //Succ(Hull(28.0));
+    S = interval ( 10.0 ); // Succ(Hull(10.0));
+    B = interval ( 8.0 ) / 3.0; // jjb -- make 8/3 representable Succ(Hull(8.0/3));
   printf(" \n");
   printf("**************************************************************\n\n");
   printf("Enter the desired smoothness (10): ");
@@ -89,9 +89,9 @@ void Init()
       printf("Enter B: ");
       fgets(answer, sizeof(answer), stdin); 
       sscanf(answer, "%lf", &fl_B); 
-      R = INTERVAL ( fl_R ); //Succ(Hull(fl_R));
-      S = INTERVAL ( fl_S ); //Succ(Hull(fl_S));
-      B = INTERVAL ( fl_B ); //Succ(Hull(fl_B));
+      R = interval ( fl_R ); //Succ(Hull(fl_R));
+      S = interval ( fl_S ); //Succ(Hull(fl_S));
+      B = interval ( fl_B ); //Succ(Hull(fl_B));
     }
   lu  = ( - (S + 1) + Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
   lss = ( - (S + 1) - Sqrt((S + 1)*(S + 1) + 4*S*(R - 1)))/2;
@@ -183,8 +183,8 @@ void Update()
 {
   int counter, index;            /* Basic counters */
   register int n1, n2, n3;       /* The exponents */
-  INTERVAL predivisor;           /* n scalar lambda */ 
-  INTERVAL b_n;                  /* temporary storage */
+  interval predivisor;           /* n scalar lambda */ 
+  interval b_n;                  /* temporary storage */
 
   for (counter = 0; counter <= order + 1; counter++)
     {
@@ -220,7 +220,7 @@ void Update()
 
 int main()
 {
-  INTERVAL sum1;
+  interval sum1;
   int i;
   int linebreak;     /* Counter for the print-out */
 

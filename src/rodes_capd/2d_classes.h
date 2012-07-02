@@ -53,8 +53,8 @@ class grid
   friend BOX grid_to_box(const grid &g)
     {
       BOX result(2);
-      result(1) = INTERVAL(g.u - 1, g.u + 1);
-      result(2) = INTERVAL(g.v - 1, g.v + 1);
+      result(1) = interval(g.u - 1, g.u + 1);
+      result(2) = interval(g.v - 1, g.v + 1);
       result *= pow(2, -g.P);
       return result;
     }
@@ -85,7 +85,7 @@ public:
   int c_stat;     // Computational status 
   int h_stat;     // Hit status
 #ifdef COMPUTE_C1
-  INTERVAL ang;   // Cone angles
+  interval ang;   // Cone angles
   double pre_exp; // Pre-expansion
   double min_exp; // Minimal expansion
 #endif
@@ -106,7 +106,7 @@ public:
     {
       out << ndl.grd << "   " << ndl.c_stat << " " << ndl.h_stat;
 #ifdef COMPUTE_C1
-      INTERVAL angles = RAD_TO_DEG * ndl.ang;
+      interval angles = RAD_TO_DEG * ndl.ang;
 
       out.precision(OUTPUT_PRECISION);
       out.setf(ios::showpos);

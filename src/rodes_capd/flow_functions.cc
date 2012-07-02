@@ -19,9 +19,9 @@ void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
 {
   short new_trvl = abs(trvl);
   short new_sign = Sign(trvl);
-  INTERVAL time;
-  BOX vf(DIM);
-  BOX Euler_Box(DIM);
+  interval time;
+  BOX vf(SYSDIM);
+  BOX Euler_Box(SYSDIM);
   BOX Temp_Switch_Box = Switch_Box;
   parcel result = pcl;         // Get the easy pieces of result
 
@@ -36,7 +36,7 @@ void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
       else
 	time = Hull( 0, - Diam(pcl.box(new_trvl)) / vf(new_trvl) );    
       
-      for ( register short i = 1; i <= DIM; i++ ) // Compute the Euler step
+      for ( register short i = 1; i <= SYSDIM; i++ ) // Compute the Euler step
 	if ( i != new_trvl )
 	  Euler_Box(i) = pcl.box(i) + time * vf(i);
 
@@ -54,7 +54,7 @@ void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
   result.box = Euler_Box;  // Save the new codim1
 
 #ifdef COMPUTE_C1   // Compute the C1 info
-  INTERVAL_MATRIX DPi(DIM, DIM);
+  IMatrix DPi(SYSDIM, SYSDIM);
   Get_DPi_Matrix(DPi, Temp_Switch_Box, new_trvl, time, result.box);
 
   if ( pcl.sign == 1 )
@@ -91,7 +91,7 @@ void Single_Partition(const parcel &pcl, List<parcel> &PSin, const double &size)
 
   bx[0] = pcl.box;  // Initialize 
 
-  for(i = 1; i <= DIM; i++)
+  for(i = 1; i <= SYSDIM; i++)
     if ( i != pcl.trvl )
       {
 	dx = Sup(pcl.box(i)) - Inf(pcl.box(i));
@@ -137,30 +137,30 @@ void Get_Hull(parcel &hull_pcl, List<parcel> &pcl_List)
 // Called by 'Flow'.
 // Computes DPi, the matrix of spatial derivatives of 
 // the local Poincare map. Returns it by reference. By
-// definition, DPi has DIM * (DIM - 1) non-zero elements.
+// definition, DPi has SYSDIM * (SYSDIM - 1) non-zero elements.
 // DPi(i, j) = DPhi(i, j) - vf(i) / vf(trvl) * DPhi(trvl, j).
 
 // This version is better since it only evaluates Vf_Range over
 // the codim-1 box Image.
-void Get_DPi_Matrix(INTERVAL_MATRIX &DPi, const BOX &Outer_Box, 
-		    const short &trvl, const INTERVAL &time, const BOX &Image)
+void Get_DPi_Matrix(IMatrix &DPi, const BOX &Outer_Box, 
+		    const short &trvl, const interval &time, const BOX &Image)
 {
   register short i, j;
-  INTERVAL quotient;
-  BOX vf(DIM); Vf_Range(vf, Image); // Vf_Range(vf, Outer_Box);
-  INTERVAL_MATRIX DPhi;
+  interval quotient;
+  BOX vf(SYSDIM); Vf_Range(vf, Image); // Vf_Range(vf, Outer_Box);
+  IMatrix DPhi;
 
   Get_DPhi_Matrix(DPhi, Outer_Box, time);
   DPi = DPhi;
-  for (i = 1; i <= DIM; i++)
+  for (i = 1; i <= SYSDIM; i++)
     if ( i != trvl )
       {
 	quotient = vf(i) / vf(trvl);
-	for (j = 1; j <= DIM; j++)  
+	for (j = 1; j <= SYSDIM; j++)  
 	  DPi(i, j) -= quotient * DPhi(trvl, j);
       }
     else
-      for (j = 1; j <= DIM; j++) // Not really neccessary, but
+      for (j = 1; j <= SYSDIM; j++) // Not really neccessary, but
 	DPi(i, j) = 0.0;         // it makes debugging clearer.
 }
 
@@ -180,17 +180,17 @@ void Get_DPi_Matrix(INTERVAL_MATRIX &DPi, const BOX &Outer_Box,
 // and finally return (by reference) 
 //   time = dx/Inf(Abs(vf(Outer_Box)))(trvl).
 // If a close return becomes a true return, we modify 'pcl.message'.
-void Get_Flow_Time(INTERVAL &time, parcel &pcl, const double &trvl_dist,
+void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
 		   BOX &Outer_Box)
 {
   register short i;
   double temp_time;
   double trvl_dx, dx;
   BOX    Inner_Box = pcl.box;              // Initialize.
-  BOX    vf(DIM);  Vf_Range(vf, Outer_Box);
+  BOX    vf(SYSDIM);  Vf_Range(vf, Outer_Box);
   double min_time  = Machine::PosInfinity; // A huge initial guess.
 
-  for ( i = 1; i <= DIM; i++ )  // Find the first time any point of Inner_Box hits  
+  for ( i = 1; i <= SYSDIM; i++ )  // Find the first time any point of Inner_Box hits  
     if ( i != pcl.trvl )        // a non-transversal boundary of Outer_Box.
       {                                     // Uses the fact that the non-transversal
 	dx = Inf(SubBounds(Sup(Outer_Box(i)), Sup(Inner_Box(i))));
@@ -224,7 +224,7 @@ void Get_Flow_Time(INTERVAL &time, parcel &pcl, const double &trvl_dist,
 	pcl.message = STOP;
     }
 
-  for ( i = 1; i <= DIM; i++ )
+  for ( i = 1; i <= SYSDIM; i++ )
     if ( i != pcl.trvl )
       Outer_Box(i) = Inner_Box(i) + time * vf(i);  // Tighten Outer_Box.
 
@@ -236,7 +236,7 @@ void Get_Flow_Time(INTERVAL &time, parcel &pcl, const double &trvl_dist,
 ////////////////////////////////////////////////////////////////////
 
 void Flow_Tangent_Vectors(parcel &pcl, const short &old_trvl, 
-			  const short &new_trvl, const INTERVAL_MATRIX &DPi)
+			  const short &new_trvl, const IMatrix &DPi)
 {
 #ifdef COMPUTE_C1
   register short sin_i = 0, cos_i = 0, zip_i = 0;
@@ -260,9 +260,9 @@ void Flow_Tangent_Vectors(parcel &pcl, const short &old_trvl,
       break;
     }
 
-  INTERVAL old_theta = pcl.angles;  // Initialize the tangent vectors.
-  BOX u_vect(DIM); 
-  BOX v_vect(DIM); 
+  interval old_theta = pcl.angles;  // Initialize the tangent vectors.
+  BOX u_vect(SYSDIM); 
+  BOX v_vect(SYSDIM); 
 
   u_vect(zip_i) = Hull(0.0);             v_vect(zip_i) = Hull(0.0); 
   u_vect(sin_i) = Sin(Inf(old_theta));   v_vect(sin_i) = Sin(Sup(old_theta)); 
@@ -291,8 +291,8 @@ void Flow_Tangent_Vectors(parcel &pcl, const short &old_trvl,
 	}
     }
 
-  INTERVAL u_angles;
-  INTERVAL v_angles;
+  interval u_angles;
+  interval v_angles;
 
   if ( Inf(r_u_vect(cos_i)) > 0.0 && Inf(r_v_vect(cos_i)) > 0.0 )     
     {             
@@ -323,15 +323,15 @@ void Flow_Tangent_Vectors(parcel &pcl, const short &old_trvl,
       throw Error_Handler(msg); 
     }
 
-  INTERVAL new_diam = v_angles - u_angles;
+  interval new_diam = v_angles - u_angles;
   if ( Sup(new_diam) < 0.0 )        // Turn the vectors right.
     new_diam = - new_diam;
   else if ( Subset(0.0, new_diam) ) // Zero is an interior point.
     new_diam = Hull(0.0, Abs(new_diam));
 
   double   old_diam  = Diam(old_theta);
-  INTERVAL factor    = Sqrt( (1 + Cos(new_diam)) / (1 + Cos(old_diam)) );
-  INTERVAL prel_exp  = Hull(Norm(r_u_vect), Norm(r_v_vect));  
+  interval factor    = Sqrt( (1 + Cos(new_diam)) / (1 + Cos(old_diam)) );
+  interval prel_exp  = Hull(Norm(r_u_vect), Norm(r_v_vect));  
 
   pcl.expansion *= prel_exp * Hull(1.0, factor);
   pcl.angles = Hull(u_angles, v_angles);      // Update results.

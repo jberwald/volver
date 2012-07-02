@@ -19,12 +19,12 @@ void iterate_to_parcel(const iterate &it, parcel &pcl)
 
   pcl.box(1) = rect(1);
   pcl.box(2) = rect(2);
-  pcl.box(3) = INTERVAL(27.0, 27.0);
-  pcl.time   = INTERVAL(0.0, 0.0);
+  pcl.box(3) = interval(27.0, 27.0);
+  pcl.time   = interval(0.0, 0.0);
   pcl.trvl = 3; pcl.sign = -1; pcl.message = 0;
 #ifdef COMPUTE_C1
   pcl.angles    = it.ndl.ang;         // pcl.angles    = it.dl.ang;
-  pcl.expansion = INTERVAL(1.0, 1.0); // pcl.expansion = it.dl.exp;
+  pcl.expansion = interval(1.0, 1.0); // pcl.expansion = it.dl.exp;
 #endif
 }
 

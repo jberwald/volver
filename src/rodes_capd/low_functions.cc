@@ -10,13 +10,13 @@
 
 ////////////////////////////////////////////////////////////////////
 
-static void LU_Decompose    (INTERVAL_MATRIX &, const INTERVAL_MATRIX &, int *);
+static void LU_Decompose    (IMatrix &, const IMatrix &, int *);
 
-static void LU_Backsub      (INTERVAL_VECTOR &, const INTERVAL_MATRIX &, int *,
-			     const INTERVAL_VECTOR &);
+static void LU_Backsub      (interval_IVector &, const IMatrix &, int *,
+			     const interval_IVector &);
 
-static void Invert_And_Mult (INTERVAL_MATRIX &, const INTERVAL_MATRIX &,
-			     const INTERVAL_MATRIX &);
+static void Invert_And_Mult (IMatrix &, const IMatrix &,
+			     const IMatrix &);
 
 ////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ static MATRIX Id (const short &dim)
 }
 
 // ID declared as a fixed global variable to save time.
-static const MATRIX ID = Id(DIM); 
+static const MATRIX ID = Id(SYSDIM); 
 
 ////////////////////////////////////////////////////////////////////
 
@@ -55,7 +55,7 @@ int Int_Power(const int &base, const int &n)
 // Called by 'Flow_By_Corner_Method'.
 // Computes the flow using corners/sides when at least one
 // partial derivative off the diagonal of DPi may vanish.
-void Some_May_Vanish(BOX &result, const INTERVAL_MATRIX &DPi, 
+void Some_May_Vanish(BOX &result, const IMatrix &DPi, 
 		     const parcel &pcl, const BOX &Outer_Box, 
 		     const BOX &dx, const double &sign_trvl_dist)
 {
@@ -63,8 +63,8 @@ void Some_May_Vanish(BOX &result, const INTERVAL_MATRIX &DPi,
   BOX   Inner_Box = pcl.box;
   BOX   Poincare[2];
 
-  Resize(Poincare[0], DIM);  // Define Poincare size
-  Resize(Poincare[1], DIM);
+  Resize(Poincare[0], SYSDIM);  // Define Poincare size
+  Resize(Poincare[1], SYSDIM);
   
   if ( pcl.sign == - 1 )     // Set the trvl coordinates
     Poincare[0](trvl) = Hull(Inf(Outer_Box(trvl)));
@@ -73,11 +73,11 @@ void Some_May_Vanish(BOX &result, const INTERVAL_MATRIX &DPi,
   Poincare[1](trvl) = Poincare[0](trvl);
 
   double   start;
-  INTERVAL local_dist;
+  interval local_dist;
   BOX      vf;
   BOX      Side_Box[2];
   
-  for (register short i = 1; i <= DIM; i++)  
+  for (register short i = 1; i <= SYSDIM; i++)  
     if ( i != trvl )         
       { // Loop through i (i is the component-coordinate)
 	Side_Box[0] = Outer_Box;	// Make Side_Box (lower)	
@@ -86,7 +86,7 @@ void Some_May_Vanish(BOX &result, const INTERVAL_MATRIX &DPi,
 	Side_Box[1] = Outer_Box;	// Make Side_Box (upper) 
 	Side_Box[1](i) = Sup(Inner_Box(i)) + dx(i);	    
 	
-	for (register short j = 1; j <= DIM; j++) 
+	for (register short j = 1; j <= SYSDIM; j++) 
 	  { // Loop through j (j is the partial derivative-coordinate)
 	    // Skip i = j (we know that the diagonal elements are non-zero) 
 	    // Skip j = trvl (we already know what codim1 we will hit)
@@ -107,7 +107,7 @@ void Some_May_Vanish(BOX &result, const INTERVAL_MATRIX &DPi,
 		  else   // Compute min/max P[i] at the corners
 		    { // Construct the small corner boxes 
 		      BOX Corner_Box[2];     
-		      INTERVAL iv[2];
+		      interval iv[2];
   
 		      Corner_Box[0] = Side_Box[k];
 		      Corner_Box[0](j) = Inf(Inner_Box(j)) + dx(j);    
@@ -137,13 +137,13 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
 {
   register short i, j;
   double lo_coord, hi_coord;
-  VECTOR point_in[POWER];   // Storage for the corner points
-  VECTOR point_out[POWER];  // Storage for the corner points
-  VECTOR current_point(DIM);
+  IVector point_in[POWER];   // Storage for the corner points
+  IVector point_out[POWER];  // Storage for the corner points
+  IVector current_point(SYSDIM);
   BOX corner_in[POWER];     // Storage for the corner boxes 
   BOX corner_out[POWER];    // Storage for the corner boxes 
-  BOX current_box(DIM);
-  BOX lo_box(DIM), hi_box(DIM);
+  BOX current_box(SYSDIM);
+  BOX lo_box(SYSDIM), hi_box(SYSDIM);
   int corner_in_cnt  = 0;
   int corner_out_cnt = 0;
   int point_in_cnt   = 0;
@@ -156,7 +156,7 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
   corner_out[corner_out_cnt++] = Outer_Box;
   point_out[point_out_cnt++] = Inf(Inner_Box); // Inf = Sup for trvl coordinate.
   
-  for (i = 1; i <= DIM; i++)
+  for (i = 1; i <= SYSDIM; i++)
     if ( i != trvl )
       {	// Prepare the intersectors
 	lo_box    = Outer_Box;
@@ -189,15 +189,15 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
 	    point_out[point_out_cnt] = current_point;
 	    point_out[point_out_cnt++](i) = hi_coord;
 	  }               // Now the corners are stored in 
-      }                   // corner_out[i], i = 0,...,2^(DIM - 1) - 1.
+      }                   // corner_out[i], i = 0,...,2^(SYSDIM - 1) - 1.
 
   i = 0; // Just for symmetric definitions
-  BOX vf(DIM);  Vf_Range(vf, corner_out[i]);
-  INTERVAL corner_time = sign_trvl_dist / vf(trvl);
+  BOX vf(SYSDIM);  Vf_Range(vf, corner_out[i]);
+  interval corner_time = sign_trvl_dist / vf(trvl);
 
   result = point_out[i] + corner_time * vf; // A bit wasteful seeing that I don't use the trvl coord.
                                             // Probably faster to use add an inner loop:
-  for (i = 1; i < POWER; i++)               // for (k = 1; k <= DIM; k++)
+  for (i = 1; i < POWER; i++)               // for (k = 1; k <= SYSDIM; k++)
     {                                       //   if ( k != trvl )
       Vf_Range(vf, corner_out[i]);          //     result(k) = point_out[i](k) + corner_time * vf(k);
       corner_time = sign_trvl_dist / vf(trvl);   
@@ -214,7 +214,7 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
 
 // Called by 'Flow'.
 // Flows pcl.box to the opposite transversal side of Outer_Box.
-void Flow_By_Corner_Method(BOX &Result_Box, const INTERVAL_MATRIX &DPi,
+void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
 			   const parcel &pcl, const BOX &Outer_Box)
 {
   // Compute the maximal change any point in Inner_Box can have while flowing.
@@ -222,9 +222,9 @@ void Flow_By_Corner_Method(BOX &Result_Box, const INTERVAL_MATRIX &DPi,
 		SubBounds(Sup(Outer_Box),Sup(pcl.box)));
 
   bool zero_indicator = false;     // Check for possible zeroes of the
-  for (register short i = 1; i <= DIM; i++)    
+  for (register short i = 1; i <= SYSDIM; i++)    
     if ( i != pcl.trvl )           // partial (space) derivatives (DPi). 
-      for (register short j = 1; j <= DIM; j++)
+      for (register short j = 1; j <= SYSDIM; j++)
 	if ( j != pcl.trvl )
 	  if ( Subset(0.0, DPi(i, j)) )
 	    {
@@ -250,19 +250,19 @@ void Flow_By_Corner_Method(BOX &Result_Box, const INTERVAL_MATRIX &DPi,
 
 ////////////////////////////////////////////////////////////////////
 
-static void LU_Decompose(INTERVAL_MATRIX &R, const INTERVAL_MATRIX &A, int *indx)
+static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
 {
   register int i, j, k, imax;
   double big, dummy;
-  static INTERVAL temp, sum;
-  static VECTOR vv(DIM);
+  static interval temp, sum;
+  static IVector vv(SYSDIM);
 
   R = A; // Copy A into R
 
-  for (i = 1; i <= DIM; i++) // Loop over all rows to get
+  for (i = 1; i <= SYSDIM; i++) // Loop over all rows to get
     {                        // the implicit scaling info.
       big = 0.0;
-      for (j = 1; j <= DIM; j++)
+      for (j = 1; j <= SYSDIM; j++)
 	if ( (dummy = Abs(R(i,j))) > big ) 
 	  big = dummy;
       if ( big == 0.0 )
@@ -273,7 +273,7 @@ static void LU_Decompose(INTERVAL_MATRIX &R, const INTERVAL_MATRIX &A, int *indx
       vv(i) = Sup(DivBounds(1.0, big));  // Store the scaling
     }
 
-  for (j = 1; j <= DIM; j++)   // Loop over columns for Crout's method. 
+  for (j = 1; j <= SYSDIM; j++)   // Loop over columns for Crout's method. 
     {                      
       imax = j; // This row is missing in "Numerical Recipies in C".
       for (i = 1; i < j; i++)  // Solve for the upper elements.
@@ -284,7 +284,7 @@ static void LU_Decompose(INTERVAL_MATRIX &R, const INTERVAL_MATRIX &A, int *indx
 	  R(i,j) = sum;
 	}
       big = 0.0;// Initialize the search for the biggest pivot element.
-      for (i = j; i <= DIM; i++)   // Solve for the diagonal and upper elements.
+      for (i = j; i <= SYSDIM; i++)   // Solve for the diagonal and upper elements.
 	{ 
 	  sum = R(i,j);
 	  for (k = 1; k < j; k++)
@@ -298,7 +298,7 @@ static void LU_Decompose(INTERVAL_MATRIX &R, const INTERVAL_MATRIX &A, int *indx
 	}
       if ( j != imax )       // Do we need to interchange rows?
 	{
-	  for (k = 1; k <= DIM; k++) // If yes, we do so...
+	  for (k = 1; k <= SYSDIM; k++) // If yes, we do so...
 	    {
 	      temp       = R(imax, k);
 	      R(imax, k) = R(j, k);
@@ -313,10 +313,10 @@ static void LU_Decompose(INTERVAL_MATRIX &R, const INTERVAL_MATRIX &A, int *indx
 	    "pivot element contains zero.";
 	  throw Error_Handler(msg);
 	}
-      if (j != DIM)
+      if (j != SYSDIM)
 	{
 	  temp = 1.0 / R(j, j);   // Now divide by the pivot element
-	  for (i = j + 1; i <= DIM; i++)
+	  for (i = j + 1; i <= SYSDIM; i++)
 	    R(i, j) *= temp;
 	}
     }                            // Get the next column in the decomposition.
@@ -324,14 +324,14 @@ static void LU_Decompose(INTERVAL_MATRIX &R, const INTERVAL_MATRIX &A, int *indx
 
 ////////////////////////////////////////////////////////////////////
 
-static void LU_Backsub(INTERVAL_VECTOR &r, const INTERVAL_MATRIX &A, INT *indx,
-		       const INTERVAL_VECTOR &b)
+static void LU_Backsub(interval_IVector &r, const IMatrix &A, INT *indx,
+		       const interval_IVector &b)
 {
   register int i, j, ip;
-  static INTERVAL sum;
+  static interval sum;
 
   r = b;
-  for (i = 1; i <= DIM; i++)  // Start with the forward substitution.
+  for (i = 1; i <= SYSDIM; i++)  // Start with the forward substitution.
     {
       ip = indx[i];           // We unscramble the permutation  
       sum = r(ip);            // as we go...
@@ -342,10 +342,10 @@ static void LU_Backsub(INTERVAL_VECTOR &r, const INTERVAL_MATRIX &A, INT *indx,
       r(i) = sum;
     }
 
-  for (i = DIM; i >= 1; i--) // Now we do the backsubstitution.
+  for (i = SYSDIM; i >= 1; i--) // Now we do the backsubstitution.
     {
      sum = r(i);  
-     for (j = i + 1; j <= DIM; j++)
+     for (j = i + 1; j <= SYSDIM; j++)
        sum -= A(i, j) * r(j);
      r(i) = sum / A(i, i);  // Store the component of the solution vector.
     }
@@ -354,17 +354,17 @@ static void LU_Backsub(INTERVAL_VECTOR &r, const INTERVAL_MATRIX &A, INT *indx,
 ////////////////////////////////////////////////////////////////////
 
 // Computes 'A^-1 * B' faster than 'Inverse(A) * B'.
-static void Invert_And_Mult(INTERVAL_MATRIX &Result, const INTERVAL_MATRIX &A,
-			    const INTERVAL_MATRIX &B)
+static void Invert_And_Mult(IMatrix &Result, const IMatrix &A,
+			    const IMatrix &B)
 {
-  static int indx[DIM + 1];
-  static INTERVAL_VECTOR Result_IV;
-  static INTERVAL_MATRIX LU_IM;
+  static int indx[SYSDIM + 1];
+  static interval_IVector Result_IV;
+  static IMatrix LU_IM;
 
-  Resize(Result, DIM, DIM);
+  Resize(Result, SYSDIM, SYSDIM);
 
   LU_Decompose(LU_IM, A, indx);
-  for (register short j = 1; j <= DIM; j++)
+  for (register short j = 1; j <= SYSDIM; j++)
     {
       LU_Backsub(Result_IV, LU_IM, indx, Col(B,j));
       SetCol(Result, j, Result_IV);
@@ -383,18 +383,18 @@ static void Invert_And_Mult(INTERVAL_MATRIX &Result, const INTERVAL_MATRIX &A,
 // Hence, we  just solve for Delta_Matrix:
 //   Delta_Matrix = (ID - t / 2 * DVf)^-1 * DVf,
 // and finally we set DPhi = ID + t * Delta_Matrix. Pronto!
-void Get_DPhi_Matrix(INTERVAL_MATRIX &DPhi, const BOX &Outer_Box, 
-		     const INTERVAL &time)
+void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box, 
+		     const interval &time)
 {
-  INTERVAL_MATRIX Delta_Matrix;  
-  INTERVAL_MATRIX DVf(DIM, DIM); 
+  IMatrix Delta_Matrix;  
+  IMatrix DVf(SYSDIM, SYSDIM); 
  
   DVf_Range(DVf, Outer_Box);   
 
-  INTERVAL_MATRIX tDVf = Hull(0.0, time) * DVf;
+  IMatrix tDVf = Hull(0.0, time) * DVf;
   Invert_And_Mult(Delta_Matrix, (ID - 0.5 * tDVf), tDVf);
-  INTERVAL_MATRIX Exp_M = ID + Delta_Matrix; 
-  INTERVAL_MATRIX Pic = ID + time * DVf * Exp_M;
+  IMatrix Exp_M = ID + Delta_Matrix; 
+  IMatrix Pic = ID + time * DVf * Exp_M;
   if ( !Intersection(DPhi, Pic,  Exp_M) )
     {
       cout << "Empty intersection!!!" << endl;

@@ -28,7 +28,7 @@ static void   Set_Max_Size      (      double &,       double &, const parcel &)
 // Checks if a box has grown too large.
 static bool Too_Large(const parcel &pcl, const double &size)
 {
-  for (register short i = 1; i <= DIM; i++)
+  for (register short i = 1; i <= SYSDIM; i++)
     if ( i != pcl.trvl )
       if ( Sup(pcl.box(i)) - Inf(pcl.box(i)) > size )
 	return true;
@@ -77,10 +77,10 @@ void Multiple_Partition(const parcel &pcl, List<parcel> &PSinit,
 static bool Switching(const parcel &pcl, short &trvl, const double &more_than_one)
 {
   double factor = more_than_one; // Prevents flipping between leading directions;
-  BOX vf(DIM);  Vf_Range(vf, pcl.box);// Can be NR = non-rigorous.
+  BOX vf(SYSDIM);  Vf_Range(vf, pcl.box);// Can be NR = non-rigorous.
 
   trvl = pcl.trvl;
-  for ( register short i = 1; i <= DIM; i++ )  
+  for ( register short i = 1; i <= SYSDIM; i++ )  
     if ( i != pcl.trvl )                       
       if ( Mig(vf(i)) > factor * Abs(vf(trvl)) )  
 	{ 
@@ -103,7 +103,7 @@ static void Build_Switch_Box(const parcel &pcl, const short &trvl, BOX &Switch_B
   double diam  = Sup(pcl.box(trvl)) - Inf(pcl.box(trvl));
 
   Switch_Box = pcl.box;                       
-  for ( register short i = 1; i <= DIM; i++ ) 
+  for ( register short i = 1; i <= SYSDIM; i++ ) 
     if ( (i != trvl) && (i != pcl.trvl) )       // Widen the non-essential sides
       Switch_Box(i) = Hull(Inf(Switch_Box(i)) - diam, Sup(Switch_Box(i)) + diam);
 
@@ -121,16 +121,16 @@ static void Build_Switch_Box(const parcel &pcl, const short &trvl, BOX &Switch_B
 // via the reference to 'trvl'.
 static bool Switch_Box_True(const parcel &pcl, short &trvl, const BOX &Switch_Box)
 {
-  BOX vf(DIM); Vf_Range(vf, Switch_Box);              
+  BOX vf(SYSDIM); Vf_Range(vf, Switch_Box);              
 
-  for ( register short i = 1; i <= DIM; i++ ) 
+  for ( register short i = 1; i <= SYSDIM; i++ ) 
     if ( i != trvl )
       if ( Abs(vf(i)) > Mig(vf(trvl)) )
 	return false;
   // If we stay inside Switch_Box, we store the new direction
   // in trvl, which is passed by reference, and return the value 'true'.
   if ( Sign(vf(trvl)) == -1 )
-    trvl = - trvl;             // trvl \in {+-1,..., +-DIM}
+    trvl = - trvl;             // trvl \in {+-1,..., +-SYSDIM}
   return true;                    
 }
 
@@ -163,10 +163,10 @@ static bool Stop(const parcel &pcl, const double &dist, const stop_parameters &s
 static void Flow(parcel &pcl, const double &trvl_dist)
 {
   parcel result = pcl;  // Pass on the unchanged pieces by copying.
-  BOX Outer_Box(DIM);
+  BOX Outer_Box(SYSDIM);
 
   double mid, rad;   
-  for ( register short i = 1; i <= DIM; i++ )
+  for ( register short i = 1; i <= SYSDIM; i++ )
     if ( i == pcl.trvl ) // Widen trvl direction.
       {
 	if ( pcl.sign == 1 ) // Inf == Sup
@@ -182,11 +182,11 @@ static void Flow(parcel &pcl, const double &trvl_dist)
 	Outer_Box(i) = Hull(mid - rad, mid + rad);
       }
 
-  INTERVAL time;
+  interval time;
   Get_Flow_Time(time, result, trvl_dist, Outer_Box);
 
   // Now, we tighten the enclosure...
-  INTERVAL_MATRIX DPi(DIM, DIM);
+  IMatrix DPi(SYSDIM, SYSDIM);
   BOX Tight_Box;
 
   BOX Image = pcl.box + time * Vf_Range(Outer_Box);
@@ -233,7 +233,7 @@ static void Update_Transversal(parcel &pcl, const short &trvl, const double &max
   // whose elements are flowed separately to the plane.
   List<parcel> Start_List, Stop_List, Image_List;
   parcel current_pcl;
-  BOX Temp_Switch_Box(DIM);
+  BOX Temp_Switch_Box(SYSDIM);
 
   Multiple_Partition(pcl, Start_List, max_size_over_three);
   First(Start_List);

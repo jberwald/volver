@@ -39,16 +39,16 @@
 ////////////////////////////////////////////////////////////////////
 
 const int    NUMBER_OF_DIGITS = 6;
-const short  SYSDIM           = 3;
+
+// SYSDIM is defined in CAPD vectalg header, so we change it here
+const short  SYSDIM           = 3; 
 
 #undef  COMPUTE_C1 // Comment out next line for topological mode.
 //#define COMPUTE_C1 
 
-// Define CAPD interval and interval vector of fixed dimension
-//typedef capd::intervals::Interval< double > DInterval;
-//typedef capd::intervals::Interval< double > INTERVAL;
-
-typedef capd::vectalg::Vector< interval, SYSDIM > IVector;
+// define interval vectors and matrices based on interval type
+typedef capd::vectalg::Vector< interval, 0 > IVector;
+typedef capd::vectalg::Matrix< interval, 0, 0 > IMatrix;
 ////////////////////////////////////////////////////////////////////
 
 const interval PI = interval::pi(); // jjb -- = Succ(Hull(Constant::Pi));
@@ -92,7 +92,7 @@ public:
   interval angles;
   interval expansion;
 #endif
-  short trvl;                // the transversal variable: 1,...,DIM
+  short trvl;                // the transversal variable: 1,...,SYSDIM
   short sign;                // the direction of the flow: - 1 or + 1
   interval time;             // The "time" variable   
   short message;             // Any message that needs to be passed on 

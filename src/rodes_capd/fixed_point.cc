@@ -12,12 +12,12 @@
 
 // Parameters defining the cube.
 static const double CUBE_RADIUS = 0.1;
-static const INTERVAL SYMM_CUBE_RADIUS = SymHull(CUBE_RADIUS);
+static const interval SYMM_CUBE_RADIUS = SymHull(CUBE_RADIUS);
 
 // Parameters for computing the exit.
-static const INTERVAL PM_ONE_IV = SymHull(1.0);
-static const INTERVAL MU = - E2_IV / E1_IV;
-static const INTERVAL NU = - E3_IV / E1_IV;
+static const interval PM_ONE_IV = SymHull(1.0);
+static const interval MU = - E2_IV / E1_IV;
+static const interval NU = - E3_IV / E1_IV;
 
 ////////////////////////////////////////////////////////////////////
 
@@ -137,25 +137,25 @@ static void Check_for_splittings(List<parcel> &In_List, List<parcel> &Result_Lis
 static void Deform(parcel &pcl)
 {
   short trvl = pcl.trvl;
-  INTERVAL distance = Hull(Abs(pcl.box(trvl)));
+  interval distance = Hull(Abs(pcl.box(trvl)));
 
   if ( trvl == 1 ) // Use a larger distance for the inverse.
     distance = 1 - Sqrt(1 - 2 * distance); 
 
-  INTERVAL C0_DEFORM_TERM = PM_ONE_IV * Sqr(distance) / 2.0; // [- r^2 / 2, + r^2 / 2]
+  interval C0_DEFORM_TERM = PM_ONE_IV * Sqr(distance) / 2.0; // [- r^2 / 2, + r^2 / 2]
 
-  for ( short i = 1; i <= DIM; i++ )
+  for ( short i = 1; i <= SYSDIM; i++ )
     pcl.box(i) += C0_DEFORM_TERM;
 
 #ifdef COMPUTE_C1
-  INTERVAL C1_NORM = 2.0 * distance;
+  interval C1_NORM = 2.0 * distance;
   if ( trvl == 1 ) // Use the formula for the inverse.
     C1_NORM /= (1 - C1_NORM);
   
-  INTERVAL C1_DEFORM_FACTOR = 1 + PM_ONE_IV * C1_NORM; 
-  INTERVAL_MATRIX D_M(DIM, DIM);  Clear(D_M); // Diagonal matrix D_M.
+  interval C1_DEFORM_FACTOR = 1 + PM_ONE_IV * C1_NORM; 
+  IMatrix D_M(SYSDIM, SYSDIM);  Clear(D_M); // Diagonal matrix D_M.
 
-  for (register short i = 1; i <= DIM; i++) // D_M(i, i) == C1_DEFORM_FACTOR,
+  for (register short i = 1; i <= SYSDIM; i++) // D_M(i, i) == C1_DEFORM_FACTOR,
     D_M(i, i) = C1_DEFORM_FACTOR;           // D_M(i, j) == [0, 0] if i != j.
 
   Flow_Tangent_Vectors(pcl, trvl, trvl, D_M);
@@ -168,13 +168,13 @@ static void Deform(parcel &pcl)
 // Calls to : 'Flow_Tangent_Vectors'.
 static void Compute_single_exit(const parcel &in_pcl, List<parcel> &Result_List)
 {
-  INTERVAL x = in_pcl.box(1);
-  INTERVAL y = in_pcl.box(2);
-  INTERVAL z = in_pcl.box(3);
-  INTERVAL abs_x = Hull(fabs(Inf(x)), fabs(Sup(x)));
+  interval x = in_pcl.box(1);
+  interval y = in_pcl.box(2);
+  interval z = in_pcl.box(3);
+  interval abs_x = Hull(fabs(Inf(x)), fabs(Sup(x)));
   int sign_x = (Mid(x) > 0.0 ? 1 : -1); // Distinguish a left and a right exit.
   double exit_rad = CUBE_RADIUS;
-  INTERVAL abs_x_over_exit_rad =  abs_x / exit_rad;
+  interval abs_x_over_exit_rad =  abs_x / exit_rad;
   parcel result = in_pcl;
 
   result.box(1) = sign_x * exit_rad;
@@ -189,11 +189,11 @@ static void Compute_single_exit(const parcel &in_pcl, List<parcel> &Result_List)
   if ( splitting )
     { // Since Log10 and Power can not handle zeroes very well,
       // we pre-compute these results, and insert them via Hull.
-      INTERVAL max_x_over_r = Hull(Sup(abs_x_over_exit_rad));
+      interval max_x_over_r = Hull(Sup(abs_x_over_exit_rad));
       double small_time = Inf(- 1.0 / E1_IV * Log10(max_x_over_r)); 
       result.time += Hull(small_time, Machine::PosInfinity);
 #ifdef COMPUTE_C1
-      INTERVAL_MATRIX P_M(DIM, DIM);  Clear(P_M); // Poincare map matrix.
+      IMatrix P_M(SYSDIM, SYSDIM);  Clear(P_M); // Poincare map matrix.
 
       P_M(2, 1) = Hull(0.0, MU / exit_rad * y * sign_x * Power(max_x_over_r, MU - 1)); 
       P_M(2, 2) = Hull(0.0, Power(max_x_over_r, MU));
@@ -207,7 +207,7 @@ static void Compute_single_exit(const parcel &in_pcl, List<parcel> &Result_List)
     {    
       result.time += - 1.0 / E1_IV * Log10(abs_x_over_exit_rad);
 #ifdef COMPUTE_C1
-      INTERVAL_MATRIX P_M(DIM, DIM);  Clear(P_M); // Poincare map matrix.
+      IMatrix P_M(SYSDIM, SYSDIM);  Clear(P_M); // Poincare map matrix.
 
       P_M(2, 1) = MU / exit_rad * y * sign_x * Power(abs_x_over_exit_rad, MU - 1); 
       P_M(2, 2) = Power(abs_x_over_exit_rad, MU);
@@ -310,7 +310,7 @@ static void Compute_exits(List<parcel> &In_List, List<parcel> &Result_List)
 // Adds the image(s) to the end of the list Image_List.
 void Cube_Exit(const parcel &pcl, List<parcel> &Image_List, const double &max_size)
 {
-  parcel hull_pcl; Resize(hull_pcl.box, DIM);
+  parcel hull_pcl; Resize(hull_pcl.box, SYSDIM);
   List<parcel> Split_List, Widened_List;
   List<parcel> Pre_Enter_List, Enter_List, Exit_List;
   List<parcel> Lumpy_List, Flat_List;

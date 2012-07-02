@@ -362,7 +362,7 @@ static void terminate_process(const char *proc_name)
 //            'Get_Image_Hull',  
 static void work_on_grid(iterate &it, const char *mult_name, const char *proc_name)
 {
-  parcel pcl; Resize(pcl.box, DIM);
+  parcel pcl; Resize(pcl.box, SYSDIM);
   List<iterate> it_List;
   List<parcel> pcl_List;
 
@@ -526,7 +526,7 @@ static void update(iterate &old_it, const iterate &new_it)
 	{ /* No need to widen the cone */ }
       else
 	{ // We have to recompute with a wider cone.
-	  INTERVAL dummy;
+	  interval dummy;
 	  if ( Intersection(dummy, new_it.ndl.ang, old_it.ndl.ang) )
 	    { // Double the angular differences.
 	      double upper_ang_diff = Sup(new_it.ndl.ang) - Sup(old_it.ndl.ang);
