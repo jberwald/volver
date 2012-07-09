@@ -57,7 +57,7 @@ const interval ONE_IV(1.0);
 
 ////////////////////////////////////////////////////////////////////
 
-void     NR_Vf_Range(IVector &, const IVector &);
+//void     NR_Vf_Range(IVector &, const IVector &);
 
 BOX      Vf_Range (const BOX &); 
 void     Vf_Range (BOX &, const BOX &);

@@ -19,15 +19,15 @@ static void DVf_Range     (BOX      &, const BOX &, const short &);
 
 // Returns a IVector containing the range of 
 // the 'lorenz' vector field w.r.t. the BOX bx.           
-void NR_Vf_Range(IVector &result, const IVector &v)
-{
-  double C1 = v(1) + v(2);
-  double C2 = K1 * C1 * v(3);
+// void NR_Vf_Range(IVector &result, const IVector &v)
+// {
+//   double C1 = v(1) + v(2);
+//   double C2 = K1 * C1 * v(3);
 
-  result(1) = E1 * v(1) - C2;
-  result(2) = E2 * v(2) + C2;
-  result(3) = E3 * v(3) + C1 * (K2 * v(1) + K3 * v(2));
-}
+//   result(1) = E1 * v(1) - C2;
+//   result(2) = E2 * v(2) + C2;
+//   result(3) = E3 * v(3) + C1 * (K2 * v(1) + K3 * v(2));
+// }
 
 ////////////////////////////////////////////////////////////////////
 
@@ -141,9 +141,9 @@ void DVf_Range(IMatrix &result, const BOX &bx)
   result(1, 1) = E1_IV - C2;
   result(1, 2) = - C2;
   result(1, 3) = - C1;
-  result(2, 1) = + C2;
+  result(2, 1) =  C2;
   result(2, 2) = E2_IV + C2;
-  result(2, 3) = + C1;
+  result(2, 3) =  C1;
   result(3, 1) = TWO_K2_IV * bx(1) + K2_PLUS_K3_IV * bx(2);
   result(3, 2) = K2_PLUS_K3_IV * bx(1) + TWO_K3_IV * bx(2);
   result(3, 3) = E3_IV;
@@ -167,9 +167,9 @@ static void DVf_Range(BOX &result, const BOX &bx, const short &i)
     }
   if ( i == 2)
     {
-      result(1) = + C2;
+      result(1) = C2;
       result(2) = E2_IV + C2;
-      result(3) = + C1;
+      result(3) = C1;
       return;
     }
   if ( i == 3 )
@@ -201,11 +201,11 @@ interval DVf_Range(const BOX &bx, const short &i, const short &j)
   if (i == 2)
     {
       if (j == 1)
-	return + K1_IV * bx(3);
+	return  K1_IV * bx(3);
       if (j == 2)
 	return E2_IV + K1_IV * bx(3);
       if (j == 3)
-	return + K1_IV * (bx(1) + bx(2));
+	return  K1_IV * (bx(1) + bx(2));
     }
   if (i == 3)
     {
@@ -237,11 +237,11 @@ void DVf_Range(interval &result, const BOX &bx, const short &i, const short &j)
   else if (i == 2)
     {
       if (j == 1)
-	result = + K1_IV * bx(3);
+	result = K1_IV * bx(3);
       else if (j == 2)
 	result = E2_IV + K1_IV * bx(3);
       else if (j == 3)
-	result = + K1_IV * (bx(1) + bx(2));
+	result = K1_IV * (bx(1) + bx(2));
     }
   else if (i == 3)
     {
