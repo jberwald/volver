@@ -5,7 +5,7 @@
 
      Latest edit: Mon Apr 10 2000
 */
-
+#include "classes.h"
 #include "flow_functions.h"
 
 static const short SWITCH_TRVL_ITERATES = 2;
@@ -32,18 +32,18 @@ void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
     {                                                          // more than a few laps.
       Vf_Range(vf, Temp_Switch_Box);             // get the flow times
       if ( new_sign == + 1)
-	time = Hull( 0, + Diam(pcl.box(new_trvl)) / vf(new_trvl) );
+	time = intervalHull( interval( 0 ), + diam(pcl.box(new_trvl)) / vf(new_trvl) );
       else
-	time = Hull( 0, - Diam(pcl.box(new_trvl)) / vf(new_trvl) );    
+	time = intervalHull( interval( 0 ), - diam(pcl.box(new_trvl)) / vf(new_trvl) );    
       
       for ( register short i = 1; i <= SYSDIM; i++ ) // Compute the Euler step
 	if ( i != new_trvl )
 	  Euler_Box(i) = pcl.box(i) + time * vf(i);
 
       if ( new_sign == + 1)
-	Euler_Box(new_trvl) = Hull(Sup(pcl.box(new_trvl)));
+	Euler_Box(new_trvl) = intervalHull(Sup(pcl.box(new_trvl)));
       else
-	Euler_Box(new_trvl) = Hull(Inf(pcl.box(new_trvl)));
+	Euler_Box(new_trvl) = intervalHull(Inf(pcl.box(new_trvl)));
 
       if ( j != SWITCH_TRVL_ITERATES ) // We use this result to shrink
 	{	                       // Temp_Switch_Box, and loop again.
@@ -86,7 +86,7 @@ void Single_Partition(const parcel &pcl, List<parcel> &PSin, const double &size)
 {
   register int i, j;                    // Basic counters  
   int nr = 1;                           // Current number of BOXes
-  double dx;                            // Diam/radius of pcl.box(i)
+  double dx;                            // diam/radius of pcl.box(i)
   BOX bx[POWER];                        // Storage for the BOXes
 
   bx[0] = pcl.box;  // Initialize 
@@ -101,8 +101,8 @@ void Single_Partition(const parcel &pcl, List<parcel> &PSin, const double &size)
 	    for(j = 0; j < nr; j++)
 	      { // Split in two
 		bx[nr + j] = bx[j];
-		bx[nr + j](i) = Hull(Inf(bx[nr + j](i)) + dx, Sup(bx[nr + j](i)));
-		bx[j](i) = Hull(Inf(bx[j](i)), Inf(bx[nr + j](i)));
+		bx[nr + j](i) = intervalHull(Inf(bx[nr + j](i)) + dx, Sup(bx[nr + j](i)));
+		bx[j](i) = intervalHull(Inf(bx[j](i)), Inf(bx[nr + j](i)));
 	      }
 	    nr += nr; // There are twice as many boxes now.
 	  }
@@ -127,7 +127,7 @@ void Get_Hull(parcel &hull_pcl, List<parcel> &pcl_List)
   Next(pcl_List);
   while( !Finished(pcl_List) ) // Get the rectangular hull of the returned boxes,
     {                          // the flow times, and the tangent vector angles.
-      hull_pcl = Hull(hull_pcl, Current(pcl_List));
+      hull_pcl = intervalHull(hull_pcl, Current(pcl_List));
       Next(pcl_List);
     }
 }
@@ -208,18 +208,18 @@ void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
     {                                   // in the transversal direction.
       double level = Inf(Inner_Box(pcl.trvl)); // Inf == Sup. 
       if ( pcl.sign == 1 )
-	Outer_Box(pcl.trvl) = Hull(level, AddBounds(level, trvl_dx));
+	Outer_Box(pcl.trvl) = intervalHull(level, AddBounds(level, trvl_dx));
       else
-	Outer_Box(pcl.trvl) = Hull(SubBounds(level, trvl_dx), level);
+	Outer_Box(pcl.trvl) = intervalHull(SubBounds(level, trvl_dx), level);
       Vf_Range(vf, Outer_Box);       // Recompute the vector field.
       time = trvl_dx / vf(pcl.trvl); // Compute the flow times required for 
       if ( pcl.sign == - 1 )         // all points in Inner_Box to flow through 
 	time = - time;               // Outer_Box in the transveral direction.
-      time = Hull(0.0, time);
+      time = intervalHull(0.0, time);
     }
   else // if we flowed as far as we wanted to (i.e., out of Outer_Box(trvl))
     {    
-      time = Hull(0.0, min_time);
+      time = intervalHull(0.0, min_time);
       if ( pcl.message == CLOSE_STOP )
 	pcl.message = STOP;
     }
@@ -264,7 +264,7 @@ void Flow_Tangent_Vectors(parcel &pcl, const short &old_trvl,
   BOX u_vect(SYSDIM); 
   BOX v_vect(SYSDIM); 
 
-  u_vect(zip_i) = Hull(0.0);             v_vect(zip_i) = Hull(0.0); 
+  u_vect(zip_i) = intervalHull(0.0);             v_vect(zip_i) = intervalHull(0.0); 
   u_vect(sin_i) = Sin(Inf(old_theta));   v_vect(sin_i) = Sin(Sup(old_theta)); 
   u_vect(cos_i) = Cos(Inf(old_theta));   v_vect(cos_i) = Cos(Sup(old_theta)); 
 
@@ -327,14 +327,14 @@ void Flow_Tangent_Vectors(parcel &pcl, const short &old_trvl,
   if ( Sup(new_diam) < 0.0 )        // Turn the vectors right.
     new_diam = - new_diam;
   else if ( Subset(0.0, new_diam) ) // Zero is an interior point.
-    new_diam = Hull(0.0, Abs(new_diam));
+    new_diam = intervalHull(0.0, Abs(new_diam));
 
-  double   old_diam  = Diam(old_theta);
+  double   old_diam  = diam(old_theta);
   interval factor    = Sqrt( (1 + Cos(new_diam)) / (1 + Cos(old_diam)) );
-  interval prel_exp  = Hull(Norm(r_u_vect), Norm(r_v_vect));  
+  interval prel_exp  = intervalHull(Norm(r_u_vect), Norm(r_v_vect));  
 
-  pcl.expansion *= prel_exp * Hull(1.0, factor);
-  pcl.angles = Hull(u_angles, v_angles);      // Update results.
+  pcl.expansion *= prel_exp * intervalHull(1.0, factor);
+  pcl.angles = intervalHull(u_angles, v_angles);      // Update results.
 
 #endif // COMPUTE_C1
 }

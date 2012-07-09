@@ -56,6 +56,7 @@ const interval DEG_TO_RAD = PI / 180.0;
 const interval RAD_TO_DEG = 180.0 / PI;
 
 interval Init_Interval  (const double   &, const double   &);
+interval Symm_Radius    (const double   &);   // jjb -- new function to replace overloaded PROFIL SymHull( double )
 interval Center         (const interval &);
 interval Radius         (const interval &);
 interval Symm_Radius    (const interval &); 
@@ -82,6 +83,7 @@ bool Subset         (const BOX &, const BOX    &);
 // Redefine some of the global CAPD functions to align with common functions in RODES
 double Sup ( const interval & );
 double Inf ( const interval & );
+void Resize ( BOX, int );
 
 ////////////////////////////////////////////////////////////////////
 class parcel

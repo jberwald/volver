@@ -12,12 +12,17 @@
 
 // Parameters defining the cube.
 static const double CUBE_RADIUS = 0.1;
-static const interval SYMM_CUBE_RADIUS = SymHull(CUBE_RADIUS);
+static const interval SYMM_CUBE_RADIUS = Symm_Radius ( CUBE_RADIUS );
 
 // Parameters for computing the exit.
-static const interval PM_ONE_IV = SymHull(1.0);
+static const interval PM_ONE_IV = Symm_Radius ( 1.0 );
 static const interval MU = - E2_IV / E1_IV;
 static const interval NU = - E3_IV / E1_IV;
+
+// For logarithm change of base since CAPD intervals only have natural
+// log. leftBound() to get a double.
+static const double LOG10 = 
+    capd::intervals::log ( interval( 10. ) ).leftBound();
 
 ////////////////////////////////////////////////////////////////////
 
@@ -40,14 +45,17 @@ bool Cube_Entry(const parcel &pcl)
 {
   if ( pcl.sign == - 1 )
     if ( pcl.trvl == 3 )
-      if ( Sup(pcl.box(3)) < CUBE_RADIUS ) // Inf == Sup
+      //if ( Sup(pcl.box(3)) < CUBE_RADIUS ) // Inf == Sup
+      if ( SYMM_CUBE_RADIUS.contains( pcl.box( 3 ) ) )
 	{
-	  if ( Abs(pcl.box(1)) < CUBE_RADIUS )
-	    {
-	      if ( Abs(pcl.box(2)) < CUBE_RADIUS )    
-		return true; // pcl.box is completely inside the cube.
+	  // if ( abs( iabs( pcl.box(1) ) ) < CUBE_RADIUS ) 
+	  if ( SYMM_CUBE_RADIUS.contains( pcl.box( 1 ) ) )
+	  {
+	    //if ( abs(pcl.box(2)) < CUBE_RADIUS )    
+	    if ( SYMM_CUBE_RADIUS.contains( pcl.box( 2 ) ) )
+	    return true; // pcl.box is completely inside the cube.
 	    }
-	  else if ( Subset(0.0, pcl.box(1)) )
+	  else if ( pcl.box(1).contains( 0.0 ) ) // subset ( 0, box(1) )
 	    return true; // pcl.box straddles the stable manifold.
 	}
   return false;
@@ -112,13 +120,18 @@ static void Check_for_splittings(List<parcel> &In_List, List<parcel> &Result_Lis
   while ( !Finished(In_List) )
     {
       cur_pcl = Current(In_List);
-      if ( Subset(0.0, cur_pcl.box(1)) )
+      // Subset is defined in classes.cc using overloaded comparison
+      // operators.
+      if ( Subset( 0.0, cur_pcl.box(1) ) )
 	{
 	  parcel left_pcl  = cur_pcl;
 	  parcel right_pcl = cur_pcl;
 	  
-	  left_pcl.box(1)  = Hull(Inf(cur_pcl.box(1)), 0.0);
-	  right_pcl.box(1) = Hull(0.0, Sup(cur_pcl.box(1)));
+	  // jjb -- It seems that the only reason to use "Hull" here
+	  // in the orginal was so it returned an interval (convex
+	  // hull of two reals).
+	  left_pcl.box(1)  = interval( Inf ( cur_pcl.box ( 1 ) ), 0.0 );
+	  right_pcl.box(1) = interval( 0.0, Sup ( cur_pcl.box ( 1 ) ) );
 	  Result_List += left_pcl;
 	  Result_List += right_pcl;
 	}
@@ -137,12 +150,13 @@ static void Check_for_splittings(List<parcel> &In_List, List<parcel> &Result_Lis
 static void Deform(parcel &pcl)
 {
   short trvl = pcl.trvl;
-  interval distance = Hull(Abs(pcl.box(trvl)));
+  // the traversal interval
+  interval distance = interval( iabs ( pcl.box ( trvl ) ) );
 
   if ( trvl == 1 ) // Use a larger distance for the inverse.
-    distance = 1 - Sqrt(1 - 2 * distance); 
-
-  interval C0_DEFORM_TERM = PM_ONE_IV * Sqr(distance) / 2.0; // [- r^2 / 2, + r^2 / 2]
+    distance = 1 - sqrt(1 - 2 * distance); 
+ 
+    interval C0_DEFORM_TERM = PM_ONE_IV * power( distance, 2 ) / 2.0; // [- r^2 / 2, + r^2 / 2]
 
   for ( short i = 1; i <= SYSDIM; i++ )
     pcl.box(i) += C0_DEFORM_TERM;
@@ -171,15 +185,17 @@ static void Compute_single_exit(const parcel &in_pcl, List<parcel> &Result_List)
   interval x = in_pcl.box(1);
   interval y = in_pcl.box(2);
   interval z = in_pcl.box(3);
-  interval abs_x = Hull(fabs(Inf(x)), fabs(Sup(x)));
-  int sign_x = (Mid(x) > 0.0 ? 1 : -1); // Distinguish a left and a right exit.
+  // jjb -- again, Hull --> interval
+  interval abs_x = interval( fabs ( Inf ( x ) ), 
+			     fabs ( Sup ( x ) ) );
+  int sign_x = ( mid ( x ) > 0.0 ? 1 : -1 ); // Distinguish a left and a right exit.
   double exit_rad = CUBE_RADIUS;
   interval abs_x_over_exit_rad =  abs_x / exit_rad;
   parcel result = in_pcl;
 
   result.box(1) = sign_x * exit_rad;
-  result.box(2) = y * Power(abs_x_over_exit_rad, MU);
-  result.box(3) = z * Power(abs_x_over_exit_rad, NU); 
+  result.box(2) = y * power(abs_x_over_exit_rad, MU);
+  result.box(3) = z * power(abs_x_over_exit_rad, NU); 
 
   // Has the parcel been split over W^ss(0) or not?
   bool splitting = false;
@@ -187,32 +203,40 @@ static void Compute_single_exit(const parcel &in_pcl, List<parcel> &Result_List)
     splitting = true;
 
   if ( splitting )
-    { // Since Log10 and Power can not handle zeroes very well,
+    { // Since log10 and Power can not handle zeroes very well,
       // we pre-compute these results, and insert them via Hull.
-      interval max_x_over_r = Hull(Sup(abs_x_over_exit_rad));
-      double small_time = Inf(- 1.0 / E1_IV * Log10(max_x_over_r)); 
-      result.time += Hull(small_time, Machine::PosInfinity);
+      interval max_x_over_r = interval ( Sup ( abs_x_over_exit_rad ) );
+      
+      // we need the inf of the interval 1.0 / ( C * log ( m...r ))
+      // interval::log is natrual log, so to be consistent we convert
+      // to base 10. (See def'n of LOG10 above.
+      double small_time = Inf(- 1.0 / E1_IV 
+			      * ( capd::intervals::log ( max_x_over_r ) / LOG10 ) ); 
+      result.time += interval ( small_time, 
+				100000. );
 #ifdef COMPUTE_C1
       IMatrix P_M(SYSDIM, SYSDIM);  Clear(P_M); // Poincare map matrix.
 
-      P_M(2, 1) = Hull(0.0, MU / exit_rad * y * sign_x * Power(max_x_over_r, MU - 1)); 
-      P_M(2, 2) = Hull(0.0, Power(max_x_over_r, MU));
-      P_M(3, 1) = sign_x * Hull(NU / exit_rad * z * Power(max_x_over_r, NU - 1), Machine::PosInfinity); 
-      P_M(3, 3) = Hull(0.0, Power(max_x_over_r, NU)); // This element is never used.
+      P_M(2, 1) = Hull(0.0, MU / exit_rad * y * sign_x * power(max_x_over_r, MU - 1)); 
+      P_M(2, 2) = Hull(0.0, power(max_x_over_r, MU));
+      P_M(3, 1) = sign_x * Hull(NU / exit_rad * z * power(max_x_over_r, NU - 1), 
+				infty); 
+      P_M(3, 3) = Hull(0.0, power(max_x_over_r, NU)); // This element is never used.
 
       Flow_Tangent_Vectors(result, result.trvl, sign_x, P_M);
 #endif // COMPUTE_C1
     }
   else // No splitting.
     {    
-      result.time += - 1.0 / E1_IV * Log10(abs_x_over_exit_rad);
+      result.time += - 1.0 / E1_IV 
+	* ( capd::intervals::log ( abs_x_over_exit_rad ) / LOG10 );
 #ifdef COMPUTE_C1
       IMatrix P_M(SYSDIM, SYSDIM);  Clear(P_M); // Poincare map matrix.
 
-      P_M(2, 1) = MU / exit_rad * y * sign_x * Power(abs_x_over_exit_rad, MU - 1); 
-      P_M(2, 2) = Power(abs_x_over_exit_rad, MU);
-      P_M(3, 1) = NU / exit_rad * z * sign_x * Power(abs_x_over_exit_rad, NU - 1); 
-      P_M(3, 3) = Power(abs_x_over_exit_rad, NU); // This element is never used.
+      P_M(2, 1) = MU / exit_rad * y * sign_x * power(abs_x_over_exit_rad, MU - 1); 
+      P_M(2, 2) = power(abs_x_over_exit_rad, MU);
+      P_M(3, 1) = NU / exit_rad * z * sign_x * power(abs_x_over_exit_rad, NU - 1); 
+      P_M(3, 3) = power(abs_x_over_exit_rad, NU); // This element is never used.
 
       Flow_Tangent_Vectors(result, result.trvl, sign_x, P_M);
 #endif // COMPUTE_C1
@@ -258,7 +282,8 @@ static void Flatten_Parcels(List<parcel> &Lumpy_List, List<parcel> &Flat_List, c
   while ( !Finished(Lumpy_List) )
     { // Work through Lumpy_List
       current_pcl = Current(Lumpy_List);
-      stop_pmtr.max_d_step = 0.5 * Diam(current_pcl.box(1)); // Set the stop parameters
+      stop_pmtr.max_d_step = 
+	0.5 * diam( current_pcl.box( 1 ) ).leftBound(); // Set the stop parameters
       stop_pmtr.trvl  = current_pcl.trvl;
       stop_pmtr.sign  = current_pcl.sign;             
       if ( current_pcl.sign == 1 )

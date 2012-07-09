@@ -10,7 +10,7 @@
 #ifndef FIXED_POINT_H
 #define FIXED_POINT_H
 
-#include <math.h>
+#include <cmath>
 
 #include "classes.h"
 #include "flow_functions.h"
@@ -23,6 +23,7 @@
 bool Cube_Entry (const parcel &);
 
 void Cube_Exit  (const parcel &, List<parcel> &, const double &);
+
 
 ////////////////////////////////////////////////////////////////////
 

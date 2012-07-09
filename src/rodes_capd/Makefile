@@ -125,26 +125,26 @@ classes.o: classes.cc  classes.h
 
 request.o: request.cc  request.h
 	@echo "Updating 'request.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 vector_field.o: vector_field.cc  vector_field.h \
 	        classes.cc  classes.h   \
 	        error_handler.h 
 	@echo "Updating 'vector_field.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 fixed_point.o: fixed_point.cc  fixed_point.h \
 	       classes.cc  classes.h  \
 	       list.h
 	@echo "Updating 'fixed_point.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 low_functions.o: low_functions.cc low_functions.h \
 	         classes.cc  classes.h   \
 	         error_handler.h \
 	         vector_field.cc  vector_field.h
 	@echo "Updating 'low_functions.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 flow_functions.o: flow_functions.cc flow_functions.h \
 	          list.h  error_handler.h \
@@ -152,7 +152,7 @@ flow_functions.o: flow_functions.cc flow_functions.h \
 	          low_functions.cc low_functions.h \
 	          vector_field.cc  vector_field.h
 	@echo "Updating 'flow_functions.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 return_map.o: return_map.cc  return_map.h \
 	      classes.cc  classes.h \
@@ -161,13 +161,14 @@ return_map.o: return_map.cc  return_map.h \
 	      fixed_point.cc  fixed_point.h \
 	      low_functions.cc low_functions.h
 	@echo "Updating 'return_map.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 convert.o: convert.cc convert.h classes.cc  classes.h \
 	   list.h 2d_classes.h \
 	   flow_functions.cc flow_functions.h 
 	@echo "Updating 'convert.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc 
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
+
 
 rodes.o:  rodes.cc \
 	 2d_classes.h list.h \
@@ -178,23 +179,24 @@ rodes.o:  rodes.cc \
 	 return_map.cc  return_map.h \
 	 fixed_point.cc  fixed_point.h
 	@echo "Updating 'rodes.o'"
-	$(CXX) ${CXXFLAGS} -MT $@ -MD -MP -MF ${@:%=%.d} -c -o $@ $<		
-#@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
+
+#	$(CXX) ${CXXFLAGS} -MT $@ -MD -MP -MF ${@:%=%.d} -c -o $@ $<		
 
 expansion.o: expansion.cc \
 	     classes.cc  classes.h \
 	     2d_classes.h \
 	     request.cc  request.h  list.h 
 	@echo "Updating 'expansion.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 smalldiv.o: smalldiv.cc 
 	@echo "Updating 'smalldiv.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 coeff.o: coeff.cc 
 	@echo "Updating 'coeff.o'"
-	@$(CCPLUS) $(CFLAGS) $(CAPD_FLAGS) -c $*.cc
+	$(CXX) -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/capd/capdExt/./filibsrc -I/Users/jberwald/src/capd/capdExt/filibsrc -I/Users/jberwald/src/capd/capdExt/./boost/include -I/Users/jberwald/src/capd/capdDynSys/include -I/Users/jberwald/src/capd/capdAux/include -I/Users/jberwald/src/capd/capdAlg/include -I/Users/jberwald/src/capd/capdExt/include -I/Users/jberwald/src/capd/capdRedHom/include -O2 -Wall -MT $@ -MD -MP -MF ${@:%=%.d} -c $< -o $@ 
 
 # -----------------------------------------------------------------------
 

@@ -31,6 +31,14 @@ interval Center(const interval &iv)
 interval Radius(const interval &iv)
 { return diam(iv) / 2.0; }
 
+
+// Returns an interval containing
+// the symmetric radius of a real number
+interval Symm_Radius(const double &dbl)
+{  
+    return interval( -dbl, dbl ); 
+}
+
 // Returns an interval containing
 // the symmetric radius of an interval
 interval Symm_Radius(const interval &iv)
@@ -97,9 +105,10 @@ void Show_Interval(const interval &iv)
 
 ////////////////////////////////////////////////////////////////////
 
-// Returns a BOX containing
-// the center of a BOX
-// jjb -- grab the mid interval in each dimension
+// Returns a BOX containing the center of a BOX
+// jjb -- grab the mid
+// interval in each dimension.(i.e. an IVector or 2 or 3 dimensions
+// with singleton intervals as coordinates.
 BOX Center(const BOX &bx)
 {
   BOX temp(SYSDIM);
@@ -165,7 +174,9 @@ bool Subset(const BOX &box1, const BOX &box2)
 
 ////////////////////////////////////////////////////////////////////
 
-// jjb -- Hull used to overload PROFIL's Hull(interval,interval). 
+// jjb -- Hull used to overload PROFIL's Hull(interval,interval) by
+// calling PROFIL's Hull where "intervalHull" is below. We modify it
+// here to perform "hull of parcel" calculations.
 parcel Hull(const parcel &pcl_1, const parcel &pcl_2)
 {
   parcel result = pcl_1;

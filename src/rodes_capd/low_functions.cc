@@ -237,7 +237,7 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
 		}
 	    }
 
-  double trvl_dist = Diam(dx(pcl.trvl));   // Get the transversal distance
+  double trvl_dist = diam(dx(pcl.trvl));   // Get the transversal distance
   if ( pcl.sign == -1 )
     trvl_dist = - trvl_dist;
 

@@ -13,9 +13,9 @@
 
 #include <iostream>
 #include <fstream>
-#include <stdlib>
+#include <cstdlib>
 #include <string>
-#include <time>
+#include <ctime>
 
 #include "2d_classes.h"
 #include "classes.h"
@@ -253,8 +253,8 @@ static void get_the_flags(iterate &it, const int &argc, char *argv[],
     } 
   else if ( argc == 8 + add ) // Load a rectangle -> several iterates.
     {
-      BOX rect; 
-      Resize(rect, 2);
+      BOX rect ( 2 ); 
+      //Resize(rect, 2);
       double dbl[4];
       int power;
 
@@ -492,7 +492,7 @@ static void insert_it_List(List<iterate> &Add_List, const char *mult_name,
 	      /*                                                      */
 #ifdef COMPUTE_C1                             
 	      add_it.ndl.ang = Rescale(add_it.ndl.ang, ANG_FACTOR); 
-	      if ( Diam(add_it.ndl.ang) < MIN_CONE_OPENING )
+	      if ( diam(add_it.ndl.ang) < MIN_CONE_OPENING )
 		{
 		  double mid = Mid(add_it.ndl.ang);
 		  add_it.ndl.ang = mid + SymHull(MIN_CONE_OPENING / 2.0);
