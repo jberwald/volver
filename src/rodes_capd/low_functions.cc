@@ -12,27 +12,27 @@
 
 static void LU_Decompose    (IMatrix &, const IMatrix &, int *);
 
-static void LU_Backsub      (interval_IVector &, const IMatrix &, int *,
-			     const interval_IVector &);
+static void LU_Backsub      (IVector &, const IMatrix &, int *,
+			     const IVector &);
 
 static void Invert_And_Mult (IMatrix &, const IMatrix &,
 			     const IMatrix &);
 
 ////////////////////////////////////////////////////////////////////
 
-static MATRIX Id (const short &dim)
+static IMatrix Id (const short &dim)
 {
-  MATRIX I(dim, dim);
+    IMatrix I(dim, dim);
 
-  Clear (I);
-  for (short i = 1; i <= dim; i++) 
-    I(i,i) = 1.0;
-
-  return I;
+    I.clear(); 
+    for (short i = 1; i <= dim; i++) 
+      I(i,i) = 1.0;
+    
+    return I;
 }
 
 // ID declared as a fixed global variable to save time.
-static const MATRIX ID = Id(SYSDIM); 
+static const IMatrix ID = Id(SYSDIM); 
 
 ////////////////////////////////////////////////////////////////////
 
@@ -67,9 +67,9 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
   Resize(Poincare[1], SYSDIM);
   
   if ( pcl.sign == - 1 )     // Set the trvl coordinates
-    Poincare[0](trvl) = Hull(Inf(Outer_Box(trvl)));
+    Poincare[0](trvl) = interval(Inf(Outer_Box(trvl)));
   else
-    Poincare[0](trvl) = Hull(Sup(Outer_Box(trvl)));
+    Poincare[0](trvl) = interval(Sup(Outer_Box(trvl)));
   Poincare[1](trvl) = Poincare[0](trvl);
 
   double   start;
@@ -119,12 +119,14 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 			  Vf_Range(vf, Corner_Box[m]);  
 			  iv[m] = vf(i) / vf(trvl);	
 			}	    
-		      Poincare[k](i) = start + sign_trvl_dist * Hull(iv[0], iv[1]);
+		      Poincare[k](i) = start + sign_trvl_dist 
+			* intervalHull(iv[0], iv[1]);
 		    } // Done with the corners
 		}
 	  }
       }
-  result = Hull(Inf(Poincare[0]), Sup(Poincare[1]));
+  // the hull of [a,a] and [b,b] 
+  result = Hull ( Inf ( Poincare[0] ), Sup ( Poincare [1] ) );
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -201,13 +203,13 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
     {                                       //   if ( k != trvl )
       Vf_Range(vf, corner_out[i]);          //     result(k) = point_out[i](k) + corner_time * vf(k);
       corner_time = sign_trvl_dist / vf(trvl);   
-      result = Hull(result, point_out[i] + corner_time * vf); 
+      result = interval(result, point_out[i] + corner_time * vf); 
     }
 
   if ( pcl.sign == 1 )
-    result(trvl) = Hull(Sup(Outer_Box(trvl)));
+    result(trvl) = interval(Sup(Outer_Box(trvl)));
   else
-    result(trvl) = Hull(Inf(Outer_Box(trvl)));
+    result(trvl) = interval(Inf(Outer_Box(trvl)));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -217,9 +219,11 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
 void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
 			   const parcel &pcl, const BOX &Outer_Box)
 {
-  // Compute the maximal change any point in Inner_Box can have while flowing.
-  BOX dx = Hull(SubBounds(Inf(Outer_Box),Inf(pcl.box)), 
-		SubBounds(Sup(Outer_Box),Sup(pcl.box)));
+  // Compute the maximal change any point in Inner_Box can have while
+  // flowing.  Store the convex hull of [inf,inf] and [sup,sup]. i.e.,
+  // create an interval from the singleton intervals.
+    BOX dx = SubBounds( Inf( Outer_Box ), Inf( pcl.box ) )
+      -SubBounds( Sup( Outer_Box ), Sup( pcl.box ) );
 
   bool zero_indicator = false;     // Check for possible zeroes of the
   for (register short i = 1; i <= SYSDIM; i++)    
@@ -391,7 +395,7 @@ void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box,
  
   DVf_Range(DVf, Outer_Box);   
 
-  IMatrix tDVf = Hull(0.0, time) * DVf;
+  IMatrix tDVf = interval(0.0, time) * DVf;
   Invert_And_Mult(Delta_Matrix, (ID - 0.5 * tDVf), tDVf);
   IMatrix Exp_M = ID + Delta_Matrix; 
   IMatrix Pic = ID + time * DVf * Exp_M;

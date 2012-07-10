@@ -84,6 +84,9 @@ bool Subset         (const BOX &, const BOX    &);
 double Sup ( const interval & );
 double Inf ( const interval & );
 void Resize ( BOX, int );
+interval SubBounds ( const double &, const double & );
+interval Hull ( const double &, const double & );
+
 
 ////////////////////////////////////////////////////////////////////
 class parcel

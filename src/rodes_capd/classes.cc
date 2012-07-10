@@ -233,5 +233,22 @@ double Inf ( const interval &iv )
     return leftBound( iv );
 }
 
+interval SubBounds ( const double &d1, const double &d2 )
+{
+    interval iv1 = interval( d1 );
+    interval iv2 = interval( d2 );
+    return iv2 - iv1;
+}
+
+// To comply with overloaded PROFIL function Hull() which takes
+// interval arguments. This is basically a wrapper around CAPD's
+// intervalHull() which returns a BOX (==IVector)
+interval Hull ( const double &d1, const double &d2 )
+{
+    interval hull ( d1, d2 );
+    return hull;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////
