@@ -78,15 +78,26 @@ void Mid_And_SymRad (      BOX &,       BOX    &, const BOX &);
 BOX  Rescale        (const BOX &, const double &);
 bool Subset         (const BOX &, const BOX    &);
 
+
 ////////////////////////////////////////////////////////////////////
 
 // Redefine some of the global CAPD functions to align with common functions in RODES
-double Sup ( const interval & );
-double Inf ( const interval & );
-void Resize ( BOX, int );
-interval SubBounds ( const double &, const double & );
-interval Hull ( const double &, const double & );
-
+double Sup          ( const interval & );
+double Inf          ( const interval & );
+double Mig          ( const interval & );
+double Abs          ( const interval & );
+double Max          ( BOX & );
+double Min          ( const double &, const double & );
+void Resize         ( BOX, int );
+//void Resize ( const interval &, const int & );
+interval SubBounds  ( const double &, const double & );
+interval Hull       ( const double &, const double & );
+interval Hull       ( const interval &, const interval & );
+interval Hull       ( const double &, const interval & );
+interval Hull       ( const double & );
+bool Subset         ( const double &, const BOX &);
+interval Norm2      ( const BOX & );
+double Mid          ( const interval & );
 
 ////////////////////////////////////////////////////////////////////
 class parcel

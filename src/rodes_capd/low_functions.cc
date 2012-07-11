@@ -59,31 +59,56 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 		     const parcel &pcl, const BOX &Outer_Box, 
 		     const BOX &dx, const double &sign_trvl_dist)
 {
-  short trvl      = pcl.trvl;     // Shorthand
-  BOX   Inner_Box = pcl.box;
-  BOX   Poincare[2];
+    short trvl      = pcl.trvl;     // Shorthand
+    BOX   Inner_Box = pcl.box;
+    BOX   Poincare ( 2 ); // jjb -- we want a 2-dim IVector to be filled later
 
-  Resize(Poincare[0], SYSDIM);  // Define Poincare size
-  Resize(Poincare[1], SYSDIM);
+    // ** Can we init these to 0's ?? **
+    interval _poincare0[] = { 0., 0., 0. }; // initialize 'empty'
+					    // vector of dim SYSDIM
+    interval _poincare1[] = { 0., 0., 0. }; // second poincare vector
+
+    //  Resize(Poincare[0], SYSDIM); // Define Poincare size 
+    //Resize(Poincare[1], SYSDIM);
   
-  if ( pcl.sign == - 1 )     // Set the trvl coordinates
-    Poincare[0](trvl) = interval(Inf(Outer_Box(trvl)));
-  else
-    Poincare[0](trvl) = interval(Sup(Outer_Box(trvl)));
-  Poincare[1](trvl) = Poincare[0](trvl);
+    interval temp;
+    // trvl \in {1,2,...SYSDIM}, so shift trvl by -1
+    if ( pcl.sign == - 1 )     // Set the trvl coordinates
+      _poincare0[ trvl-1 ] = interval(Inf(Outer_Box(trvl))); // probably need oper []
+    else
+      _poincare0[ trvl-1 ] = interval(Sup(Outer_Box(trvl)));
+    _poincare1[ trvl-1 ] = _poincare0[ trvl-1 ] 
 
-  double   start;
-  interval local_dist;
-  BOX      vf;
-  BOX      Side_Box[2];
+    Poincare[0] = _poincare0
+
+    double   start;
+    interval local_dist;
+    BOX      vf;
+    BOX      Side_Box ( 2 ); // this will hold 2-dim vecs 
+    // interval _side_vec0 = { 0., 0., 0. };
+    // interval _side_vec1 = { 0., 0., 0. };
   
   for (register short i = 1; i <= SYSDIM; i++)  
     if ( i != trvl )         
       { // Loop through i (i is the component-coordinate)
+
+	// // Can't index intervals 
+	// for ( int idx = 1; idx <= SYSDIM; idx++ )
+	//   {
+	//     if ( idx == i )
+	//       _side_vec0 [ idx ] = Inf ( Inner_Box [i] ) + dx [ i ];
+	//     else
+	//       _side_vec0 [ idx ] = Outer_Box [ idx ];
+	//   }
+	Side_Box[0] = _side_box0;
+
 	Side_Box[0] = Outer_Box;	// Make Side_Box (lower)	
 	Side_Box[0](i) = Inf(Inner_Box(i)) + dx(i);
 	
 	Side_Box[1] = Outer_Box;	// Make Side_Box (upper) 
+	// apply necessary distortion to box
+	
+
 	Side_Box[1](i) = Sup(Inner_Box(i)) + dx(i);	    
 	
 	for (register short j = 1; j <= SYSDIM; j++) 
@@ -101,12 +126,15 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 		  if ( Subset(0.0, DPi(i, j)) == true )	
 		    {    // compute min/max P[i] in the side boxes  
 		      Vf_Range(vf, Side_Box[k]);
-		      local_dist = sign_trvl_dist * vf(i) / vf(trvl);    
+		      local_dist = sign_trvl_dist * vf(i) / vf(trvl);  
+
+		      _poincare_vec
+  
 		      Poincare[k](i) = start + local_dist;
 		    }   
 		  else   // Compute min/max P[i] at the corners
 		    { // Construct the small corner boxes 
-		      BOX Corner_Box[2];     
+		      BOX Corner_Box ( 2 ); 
 		      interval iv[2];
   
 		      Corner_Box[0] = Side_Box[k];
@@ -126,7 +154,11 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 	  }
       }
   // the hull of [a,a] and [b,b] 
-  result = Hull ( Inf ( Poincare[0] ), Sup ( Poincare [1] ) );
+    interval p0, p1;
+    p0 = Poincare[0];
+    p1 = Poincare[1];
+    result = Hull ( Inf ( p0 ), Sup ( p1 ) );
+//( Inf ( Poincare[0] ), Sup ( Poincare [1] ) );
 }
 
 ////////////////////////////////////////////////////////////////////

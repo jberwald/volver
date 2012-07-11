@@ -82,7 +82,7 @@ static bool Switching(const parcel &pcl, short &trvl, const double &more_than_on
   trvl = pcl.trvl;
   for ( register short i = 1; i <= SYSDIM; i++ )  
     if ( i != pcl.trvl )                       
-      if ( Mig(vf(i)) > factor * Abs(vf(trvl)) )  
+      if ( Mig(vf(i)) > factor * Abs(vf(trvl)) )  // <-- abs ( interval )
 	{ 
 	  trvl = i;     // Check which component of the vector field 
 	  factor = 1.0; // is dominating, and get the right sign
@@ -170,9 +170,9 @@ static void Flow(parcel &pcl, const double &trvl_dist)
     if ( i == pcl.trvl ) // Widen trvl direction.
       {
 	if ( pcl.sign == 1 ) // Inf == Sup
-	  Outer_Box(i) = Hull(Inf(pcl.box(i)), pcl.box(i) + trvl_dist);	
+	  Outer_Box [i] = Hull ( Inf ( pcl.box[i] ), pcl.box[i] + trvl_dist );	
 	else
-	  Outer_Box(i) = Hull(Inf(pcl.box(i)) - trvl_dist, pcl.box(i));	
+	  Outer_Box(i) = Hull ( Inf( pcl.box(i) ) - trvl_dist, pcl.box(i));	
       }
     else // i != pcl.trvl
       {
@@ -321,8 +321,8 @@ static void Flow_The_Parcel(const parcel &in_pcl, List<parcel> &Return_List,
 	      dist = fabs(Sup(pcl.box(pcl.trvl) - sp.level));
 	      pcl.message = CLOSE_STOP;
 	    }
-	  if ( Inf(Norm(pcl.box)) < 1.0 ) // Improves accuracy near the fixed point.       
-	    dist = Min(sp.max_d_step, Inf(Norm(pcl.box)) / 10.0);
+	  if ( Inf(Norm2(pcl.box)) < 1.0 ) // Improves accuracy near the fixed point.       
+	    dist = Min(sp.max_d_step, Inf(Norm2(pcl.box)) / 10.0);
 	  if ( Cube_Entry(pcl) ) // If we enter the cube containing the origin
 	    {                    // we explicitly compute the outgoing image(s).
 	      Cube_Exit(pcl, In_List, max_size);

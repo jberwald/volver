@@ -245,10 +245,88 @@ interval SubBounds ( const double &d1, const double &d2 )
 // intervalHull() which returns a BOX (==IVector)
 interval Hull ( const double &d1, const double &d2 )
 {
-    interval hull ( d1, d2 );
-    return hull;
+    interval _hull ( d1, d2 );
+    return _hull;
 }
 
+interval Hull ( const interval &iv1, const interval &iv2 )
+{
+    return capd::intervals::intervalHull ( iv1, iv2 );
+}
+
+interval Hull ( const double &dbl, const interval &iv )
+{
+    return capd::intervals::intervalHull ( interval ( dbl ), iv );
+}
+
+interval Hull ( const double &dbl )
+{
+    return interval ( dbl );
+}
+
+// END OVERLOADING OF HULL()
+
+double Mig ( const interval &iv )
+{
+    if ( iv.leftBound() > 0 )
+      return iv.leftBound();
+    else if ( iv.rightBound() < 0 )
+      return iv.rightBound();
+    else
+      return 0.;
+}
+
+double Abs ( const interval &iv )
+{
+    return iabs ( iv ) . leftBound();
+}
+
+// Max (Min) on a BOX assume that we are passing in an IVector of
+// diameters obtained from diam(). Thus, we have SYSDIM intervals {
+// [a,a], ..., [d,d] }, and we need to find the maximum (minimum). So
+// we simply iterate through the intervals in the vector.
+double Max ( BOX &box )
+{
+    double theMax = box[0] . leftBound ( ); // singleton intervals
+    IVector::iterator bg = box.begin(), en = box.end();
+    while(bg!=en)
+    {
+      if ( ( *bg ) . leftBound ( )  > theMax )
+	theMax = ( *bg ) . leftBound ( );
+      ++bg;
+    }
+    return theMax;
+}
+
+// double Min ( const BOX &box )
+// {
+//     double theMin = box[0];
+//     IVector::iterator bg = box.begin(), en = box.end();
+//     while(bg!=en)
+//     {
+//       if ( ( *bg ) < theMin )
+// 	theMin = ( *bg );
+//       ++bg;
+//     }
+//     return theMin;
+// }
+
+
+// This is a 'normal' min function
+double Min ( const double &d1, const double &d2 )
+{
+    return ! ( d2 < d1 ) ? d1 : d2;    
+}
+
+interval Norm2 ( const BOX &bx )
+{ 
+    return bx.euclNorm();
+}
+
+double Mid ( const interval &iv )
+{
+    return iv . mid ( ) . leftBound ( ) ;
+}
 
 
 ////////////////////////////////////////////////////////////////////

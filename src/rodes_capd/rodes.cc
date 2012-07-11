@@ -237,7 +237,8 @@ static void get_the_flags(iterate &it, const int &argc, char *argv[],
       it.ndl.grd.P = atoi(argv[5]); // diam = 2^-P.
 #ifdef COMPUTE_C1
       // CAPD intervalHull() takes iv1 and iv2 as args, so we convert
-      // the floats to intervals
+      // the floats to intervals. Don't really need this since we're
+      // not computing C1.
       it.ndl.ang = DEG_TO_RAD * intervalHull( interval( atof( argv[6]) ), 
 					      interval( atof( argv[7]) ) );
       it.ndl.pre_exp = LARGE_NUMBER;
