@@ -172,7 +172,7 @@ static void Flow(parcel &pcl, const double &trvl_dist)
 	if ( pcl.sign == 1 ) // Inf == Sup
 	  Outer_Box [i] = Hull ( Inf ( pcl.box[i] ), pcl.box[i] + trvl_dist );	
 	else
-	  Outer_Box(i) = Hull ( Inf( pcl.box(i) ) - trvl_dist, pcl.box(i));	
+	  Outer_Box[i] = Hull ( Inf( pcl.box[i] ) - trvl_dist, pcl.box[i]);	
       }
     else // i != pcl.trvl
       {

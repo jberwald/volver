@@ -225,12 +225,18 @@ ostream & operator << (ostream &out, const parcel &pcl)
 
 double Sup ( const interval &iv )
 { 
-    return rightBound ( iv );
+    return iv.rightBound();
 }
 
 double Inf ( const interval &iv )
 {
-    return leftBound( iv );
+    return iv.leftBound();
+}
+
+// Returns a vector containing the lower bounds of the interval vector v.
+IVector Inf ( const IVector &vec )
+{
+    blah;
 }
 
 interval SubBounds ( const double &d1, const double &d2 )

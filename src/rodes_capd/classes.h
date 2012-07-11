@@ -84,6 +84,7 @@ bool Subset         (const BOX &, const BOX    &);
 // Redefine some of the global CAPD functions to align with common functions in RODES
 double Sup          ( const interval & );
 double Inf          ( const interval & );
+IVector Inf         ( const IVector & );
 double Mig          ( const interval & );
 double Abs          ( const interval & );
 double Max          ( BOX & );
