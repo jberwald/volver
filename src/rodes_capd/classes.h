@@ -15,22 +15,12 @@
 
 ////////////////////////////////////////////////////////////////////
 
-/* #include "Constants.h"                 // PROFIL/BIAS header */
-/* #include "Error.h"                     // PROFIL/BIAS header */
-/* #include "Functions.h"                 // PROFIL/BIAS header */
-/* #include "Interval.h"                  // PROFIL/BIAS header */
-/* #include "IntervalMatrix.h"            // PROFIL/BIAS header */
-/* #include "IntervalVector.h"            // PROFIL/BIAS header */
-/* #include "Matrix.h"                    // PROFIL/BIAS header */
-/* #include "Vector.h"                    // PROFIL/BIAS header */
-
 //#include "capd/capdlib.h"
 //#include "capd/intervals/Interval.h"
 #include "capd/rounding/DoubleRounding.h"
 #include "capd/intervals/DoubleInterval.h"
 #include "capd/intervals/IntervalError.h"
 #include "capd/vectalg/vectalgLib.h"
-
 
 ////////////////////////////////////////////////////////////////////
 
@@ -95,6 +85,8 @@ void Resize         ( BOX, int );
 //void Resize ( const interval &, const int & );
 interval SubBounds  ( const double &, const double & );
 IVector SubBounds   ( const DVector &, const DVector & );
+IVector DivBounds   ( const DVector &, const double & );
+interval DivBounds  ( const double &, const double & );
 interval Hull       ( const double &, const double & );
 interval Hull       ( const interval &, const interval & );
 interval Hull       ( const double &, const interval & );
@@ -103,6 +95,9 @@ bool Subset         ( const double &, const BOX &);
 interval Norm2      ( const BOX & );
 double Mid          ( const interval & );
 bool Intersection   ( IVector &, const IVector& , const IVector& );
+double Diam         ( interval & );
+IVector Col         ( IMatrix &, int & );
+void SetCol         ( IMatrix &, int &, IVector & );
 
 ////////////////////////////////////////////////////////////////////
 class parcel

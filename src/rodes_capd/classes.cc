@@ -267,8 +267,8 @@ interval SubBounds ( const double &d1, const double &d2 )
 IVector SubBounds ( const DVector &iv1, const DVector &iv2 )
 {
     DVector result = iv2 - iv1;
-    IVector sub ( result );
-    return sub;
+    IVector sb ( result );
+    return sb;
 }
 // To comply with overloaded PROFIL function Hull() which takes
 // interval arguments. This is basically a wrapper around CAPD's
@@ -357,18 +357,45 @@ double Mid ( const interval &iv )
     return iv . mid ( ) . leftBound ( ) ;
 }
 
-bool Intersection ( IVector &common, const IVector &x, const IVector &y )
+bool Intersection ( IVector &overlap, const IVector &x, const IVector &y )
 {
     try
       {
-	common = intersection ( x, y );
+	overlap = intersection ( x, y );
 	return true;
       }
     catch ( ... )
       {
 	return false;
       }
-    
 }
 
+double Diam ( interval &iv )
+{
+    return diam ( iv ) . leftBound();
+}
+
+interval DivBounds ( double &d1, double &d2 )
+{
+    interval iv ( d1 / d2 );
+    return iv;
+}
+
+IVector DivBounds ( DVector &dvec, double &d )
+{
+    dvec /= d;
+    IVector ivec ( dvec ); 
+    return ivec;
+}
+
+IVector Col ( IMatrix &mat, int &idx )
+{
+  // wonder what this method is... ??
+    return mat . getColumn ( i );
+}
+
+void SetCol ( IMatrix &mat, int &idx, IVector &iv )
+{
+    mat . setColumn ( ??? );
+}
 ////////////////////////////////////////////////////////////////////

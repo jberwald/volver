@@ -220,13 +220,19 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
   BOX vf(SYSDIM);  Vf_Range(vf, corner_out[i]);
   interval corner_time = sign_trvl_dist / vf(trvl);
 
-  result = point_out[i] + corner_time * vf; // A bit wasteful seeing that I don't use the trvl coord.
+  // This is odd: DVector + ( interval * IVector )
+  // From PROFIL doc: REAL or VECTOR operands may also be used instead of interval operands, as long as one operand is an INTERVAL type. 
+    
+  // Convert DVector to IVector (singletons)
+    IVector dp ( point_out[i] );
+    result = dp + ( corner_time * vf ); // A bit wasteful seeing that I don't use the trvl coord.
                                             // Probably faster to use add an inner loop:
+    // Use dp here, too
   for (i = 1; i < POWER; i++)               // for (k = 1; k <= SYSDIM; k++)
     {                                       //   if ( k != trvl )
       Vf_Range(vf, corner_out[i]);          //     result(k) = point_out[i](k) + corner_time * vf(k);
       corner_time = sign_trvl_dist / vf(trvl);   
-      result = intervalHull(result, point_out[i] + corner_time * vf);  // ** this is passing ivec and interval
+      result = intervalHull(result, dp + corner_time * vf);  // ** this is passing ivec and interval
     }
 
   if ( pcl.sign == 1 )
@@ -245,8 +251,8 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
   // Compute the maximal change any point in Inner_Box can have while
   // flowing.  Store the convex hull of [inf,inf] and [sup,sup]. i.e.,
   // create an intervalHull() from the vectors of singleton intervals.
-    BOX dx = intervalHull ( SubBounds( Inf( Outer_Box ), Inf( pcl.box ) )
-			    -SubBounds( Sup( Outer_Box ), Sup( pcl.box ) ) );
+    BOX dx = capd::vectalg::intervalHull ( SubBounds( Inf( Outer_Box ), Inf( pcl.box ) ),
+					   SubBounds( Sup( Outer_Box ), Sup( pcl.box ) ) );
 
   bool zero_indicator = false;     // Check for possible zeroes of the
   for (register short i = 1; i <= SYSDIM; i++)    
@@ -264,7 +270,7 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
 		}
 	    }
 
-  double trvl_dist = diam(dx(pcl.trvl));   // Get the transversal distance
+    double trvl_dist = Diam( dx( pcl.trvl ) );   // Get the transversal distance
   if ( pcl.sign == -1 )
     trvl_dist = - trvl_dist;
 
@@ -282,7 +288,7 @@ static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
   register int i, j, k, imax;
   double big, dummy;
   static interval temp, sum;
-  static IVector vv(SYSDIM);
+  static IVector vv ( SYSDIM );
 
   R = A; // Copy A into R
 
@@ -351,8 +357,8 @@ static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
 
 ////////////////////////////////////////////////////////////////////
 
-static void LU_Backsub(interval_IVector &r, const IMatrix &A, INT *indx,
-		       const interval_IVector &b)
+static void LU_Backsub( IVector &r, const IMatrix &A, int *indx,
+			const IVector &b )
 {
   register int i, j, ip;
   static interval sum;
@@ -385,7 +391,7 @@ static void Invert_And_Mult(IMatrix &Result, const IMatrix &A,
 			    const IMatrix &B)
 {
   static int indx[SYSDIM + 1];
-  static interval_IVector Result_IV;
+  static IVector Result_IV;
   static IMatrix LU_IM;
 
   Resize(Result, SYSDIM, SYSDIM);
@@ -393,7 +399,8 @@ static void Invert_And_Mult(IMatrix &Result, const IMatrix &A,
   LU_Decompose(LU_IM, A, indx);
   for (register short j = 1; j <= SYSDIM; j++)
     {
-      LU_Backsub(Result_IV, LU_IM, indx, Col(B,j));
+      // *** Col ( ) defined in classes.h, wraps IMatrix mathod. Have to figure it out when have internet. ***
+      LU_Backsub( Result_IV, LU_IM, indx, Col(B,j) );
       SetCol(Result, j, Result_IV);
     }
 }
@@ -418,10 +425,10 @@ void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box,
  
   DVf_Range(DVf, Outer_Box);   
 
-  IMatrix tDVf = interval(0.0, time) * DVf;
-  Invert_And_Mult(Delta_Matrix, (ID - 0.5 * tDVf), tDVf);
-  IMatrix Exp_M = ID + Delta_Matrix; 
-  IMatrix Pic = ID + time * DVf * Exp_M;
+    IMatrix tDVf = interval(0.0, time) * DVf;
+    Invert_And_Mult(Delta_Matrix, (ID - 0.5 * tDVf), tDVf);
+    IMatrix Exp_M ( ID + Delta_Matrix ); 
+    IMatrix Pic ( ID + time * DVf * Exp_M ); // << ---- This is init'd with an IVector??
   if ( !Intersection(DPhi, Pic,  Exp_M) )
     {
       cout << "Empty intersection!!!" << endl;
