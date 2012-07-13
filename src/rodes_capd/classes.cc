@@ -233,10 +233,28 @@ double Inf ( const interval &iv )
     return iv.leftBound();
 }
 
-// Returns a vector containing the lower bounds of the interval vector v.
-IVector Inf ( const IVector &vec )
+// Returns an IVector containing the lower bounds of the IVector vec. as singletons. 
+DVector Inf ( const IVector &vec )
 {
-    blah;
+  // fill infVec with the infima of vec. 
+    DVector infVec ( vec.dimension() );
+    for ( register short i = 0; i < vec.dimension(); i++ )
+      {
+	infVec [ i ] = vec [ i ] . leftBound(); 
+      }
+    return infVec;
+}
+
+// Returns an IVector containing the lower bounds of the IVector vec. as singletons. 
+DVector Sup ( const IVector &vec )
+{
+  // fill infVec with the infima of vec. 
+    DVector supVec ( vec.dimension() );
+    for ( register short i = 0; i < vec.dimension(); i++ )
+      {
+	supVec [ i ] = vec [ i ] . rightBound(); 
+      }
+    return supVec;
 }
 
 interval SubBounds ( const double &d1, const double &d2 )
@@ -246,13 +264,18 @@ interval SubBounds ( const double &d1, const double &d2 )
     return iv2 - iv1;
 }
 
+IVector SubBounds ( const DVector &iv1, const DVector &iv2 )
+{
+    DVector result = iv2 - iv1;
+    IVector sub ( result );
+    return sub;
+}
 // To comply with overloaded PROFIL function Hull() which takes
 // interval arguments. This is basically a wrapper around CAPD's
 // intervalHull() which returns a BOX (==IVector)
 interval Hull ( const double &d1, const double &d2 )
 {
-    interval _hull ( d1, d2 );
-    return _hull;
+    return interval ( d1, d2 );
 }
 
 interval Hull ( const interval &iv1, const interval &iv2 )
@@ -334,5 +357,18 @@ double Mid ( const interval &iv )
     return iv . mid ( ) . leftBound ( ) ;
 }
 
+bool Intersection ( IVector &common, const IVector &x, const IVector &y )
+{
+    try
+      {
+	common = intersection ( x, y );
+	return true;
+      }
+    catch ( ... )
+      {
+	return false;
+      }
+    
+}
 
 ////////////////////////////////////////////////////////////////////

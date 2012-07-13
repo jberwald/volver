@@ -61,15 +61,20 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 {
     short trvl      = pcl.trvl;     // Shorthand
     BOX   Inner_Box = pcl.box;
+    DVector dInf, dSup;  // for storage of Inf and Sup results
 
     // Array of two IVectors of length SYSDIM
-    IVector::setDefaultDimension( SYSDIM );
-    BOX *Poincare = new IVector [ 2 ];
+    IVector::setDefaultDimension( SYSDIM ); // This should set the
+					    // dimension for the other
+					    // IVectors below. ? What
+					    // is the scope of this
+					    // declaration ?
+    BOX *Poincare = new IVector [ 2 ]; // we want two vectors with number of spatial coords = SYSDIM
   
-    interval temp;
     // trvl \in {1,2,...SYSDIM}, so shift trvl by -1
     if ( pcl.sign == - 1 )     // Set the trvl coordinates
-      Poincare [ 0 ][ trvl-1 ] = interval ( Inf ( Outer_Box [trvl-1] ) ); // probably need oper []
+      // we want the singleton, so we use an interval (Hull in PROFIL)
+      Poincare [ 0 ][ trvl-1 ] = interval ( Inf ( Outer_Box [trvl-1] ) ); // probably need operator[]
     else
       Poincare [ 0 ][ trvl-1 ] = interval ( Sup ( Outer_Box [trvl-1] ) );
     Poincare [ 1 ][ trvl-1 ] = Poincare [ 0 ][ trvl-1 ]; 
@@ -88,9 +93,7 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 	
 	Side_Box[1] = Outer_Box;	// Make Side_Box (upper) 
 	// apply necessary distortion to box
-	
-
-	Side_Box[1](i) = Sup(Inner_Box(i)) + dx(i);	    
+	Side_Box[1](i) = Sup(Inner_Box[i]) + dx[i];	    
 	
 	for (register short j = 1; j <= SYSDIM; j++) 
 	  { // Loop through j (j is the partial derivative-coordinate)
@@ -100,15 +103,15 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 	      for (register short k = 0; k < 2; k++)
 		{ // Loop through k (k represents upper and lower box)	
 		  if ( k == 0 )	 
-		    start = Inf(Inner_Box(i)); // Get the initial value
+		    start = Inf(Inner_Box[i]); // Get the initial value
 		  else
-		    start = Sup(Inner_Box(i));
+		    start = Sup(Inner_Box[i]);
 		  
 		  if ( Subset(0.0, DPi(i, j)) == true )	
 		    {    // compute min/max P[i] in the side boxes  
 		      Vf_Range(vf, Side_Box[k]);
-		      local_dist = sign_trvl_dist * vf(i) / vf(trvl);  
-		      Poincare[k](i) = start + local_dist;
+		      local_dist = sign_trvl_dist * vf[i] / vf(trvl);  // interval
+		      Poincare[k][i] = start + local_dist; // double + interval
 		    }   
 		  else   // Compute min/max P[i] at the corners
 		    { // Construct the small corner boxes 
@@ -124,16 +127,21 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 		      for (register short m = 0; m < 2; m++)
 			{ // m indicates the Corner_Box in use
 			  Vf_Range(vf, Corner_Box[m]);  
-			  iv[m] = vf(i) / vf(trvl);	
+			  iv[m] = vf[i] / vf(trvl);	
 			}	    
-		      Poincare[k](i) = start + sign_trvl_dist 
+		      Poincare[k][i] = start + sign_trvl_dist 
 			* intervalHull(iv[0], iv[1]);
 		    } // Done with the corners
 		}
 	  }
       }
   // the hull of [a,a] and [b,b] 
-    result = intervalHull ( Inf ( Poincare[0] ), Sup ( Poincare [1] ) );
+  // Instead of adding function, just do the conversion here
+    dInf = Inf ( Poincare[0] ); 
+    dSup = Sup ( Poincare[1] );
+    IVector pInf ( dInf );
+    IVector pSup ( dSup );
+    result = intervalHull ( pInf, pSup );
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -144,20 +152,28 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box, 
 		     const BOX &dx, const double &sign_trvl_dist)
 {
-  register short i, j;
-  double lo_coord, hi_coord;
-  IVector point_in[POWER];   // Storage for the corner points
-  IVector point_out[POWER];  // Storage for the corner points
-  IVector current_point(SYSDIM);
-  BOX corner_in[POWER];     // Storage for the corner boxes 
-  BOX corner_out[POWER];    // Storage for the corner boxes 
-  BOX current_box(SYSDIM);
-  BOX lo_box(SYSDIM), hi_box(SYSDIM);
-  int corner_in_cnt  = 0;
-  int corner_out_cnt = 0;
-  int point_in_cnt   = 0;
-  int point_out_cnt  = 0;
-  int loop_cnt;
+    register short i, j;
+    double lo_coord, hi_coord;
+    // allotting space for array of DVectors ( n = POWER )
+    DVector *point_in = new ( SYSDIM ) DVector [ POWER ];
+    DVector *point_out = new ( SYSDIM ) DVector [ POWER ];
+
+    // DVector point_in[POWER];   // Storage for the corner points -- we need 2^(d-1) corners for the in points
+    // DVector point_out[POWER];  // Storage for the corner points  << --- ***** THIS UTILIZES BUILT IN Int_Power() Will have to fils ASAP.
+    DVector current_point(SYSDIM); // 
+
+    BOX *corner_in = new ( SYSDIM ) BOX [ POWER ];
+    BOX *corner_out = new ( SYSDIM ) BOX [ POWER ];
+
+    // BOX corner_in[POWER];     // Storage for the corner boxes -- similar number of corner intervals needed as in point_in
+    // BOX corner_out[POWER];    // Storage for the corner boxes 
+    BOX current_box(SYSDIM);
+    BOX lo_box(SYSDIM), hi_box(SYSDIM);
+    int corner_in_cnt  = 0;
+    int corner_out_cnt = 0;
+    int point_in_cnt   = 0;
+    int point_out_cnt  = 0;
+    int loop_cnt;
 
   short trvl = pcl.trvl;    // Shorthand
   BOX Inner_Box = pcl.box;
@@ -169,12 +185,12 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
     if ( i != trvl )
       {	// Prepare the intersectors
 	lo_box    = Outer_Box;
-	lo_box(i) = Inf(Inner_Box(i)) + dx(i);
+	lo_box[i] = Inf(Inner_Box[i]) + dx[i];
 	hi_box    = Outer_Box;
-	hi_box(i) = Sup(Inner_Box(i)) + dx(i);
+	hi_box[i] = Sup(Inner_Box[i]) + dx[i];
 	
-	lo_coord = Inf(Inner_Box(i));
-	hi_coord = Sup(Inner_Box(i));
+	lo_coord = Inf(Inner_Box[i]);
+	hi_coord = Sup(Inner_Box[i]);
 	
 	for (j = 0; j < corner_out_cnt; j++)  // Copy corner_out to corner_in
 	  {	                              // and delete all in corner_out
@@ -194,9 +210,9 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
 	    Intersection(corner_out[corner_out_cnt++], current_box, hi_box);
 	    current_point = point_in[j];
 	    point_out[point_out_cnt] = current_point;
-	    point_out[point_out_cnt++](i) = lo_coord;
+	    point_out[point_out_cnt++][i] = lo_coord;
 	    point_out[point_out_cnt] = current_point;
-	    point_out[point_out_cnt++](i) = hi_coord;
+	    point_out[point_out_cnt++][i] = hi_coord;
 	  }               // Now the corners are stored in 
       }                   // corner_out[i], i = 0,...,2^(SYSDIM - 1) - 1.
 
@@ -210,7 +226,7 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
     {                                       //   if ( k != trvl )
       Vf_Range(vf, corner_out[i]);          //     result(k) = point_out[i](k) + corner_time * vf(k);
       corner_time = sign_trvl_dist / vf(trvl);   
-      result = interval(result, point_out[i] + corner_time * vf); 
+      result = intervalHull(result, point_out[i] + corner_time * vf);  // ** this is passing ivec and interval
     }
 
   if ( pcl.sign == 1 )
@@ -228,9 +244,9 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
 {
   // Compute the maximal change any point in Inner_Box can have while
   // flowing.  Store the convex hull of [inf,inf] and [sup,sup]. i.e.,
-  // create an interval from the singleton intervals.
-    BOX dx = SubBounds( Inf( Outer_Box ), Inf( pcl.box ) )
-      -SubBounds( Sup( Outer_Box ), Sup( pcl.box ) );
+  // create an intervalHull() from the vectors of singleton intervals.
+    BOX dx = intervalHull ( SubBounds( Inf( Outer_Box ), Inf( pcl.box ) )
+			    -SubBounds( Sup( Outer_Box ), Sup( pcl.box ) ) );
 
   bool zero_indicator = false;     // Check for possible zeroes of the
   for (register short i = 1; i <= SYSDIM; i++)    
@@ -281,7 +297,7 @@ static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
 	  char *msg = "Error: 'LU_Decompose'. Singular Matrix";
 	  throw Error_Handler(msg);
 	}
-      vv(i) = Sup(DivBounds(1.0, big));  // Store the scaling
+      vv[i] = Sup(DivBounds(1.0, big));  // Store the scaling
     }
 
   for (j = 1; j <= SYSDIM; j++)   // Loop over columns for Crout's method. 
@@ -301,7 +317,7 @@ static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
 	  for (k = 1; k < j; k++)
 	    sum -= R(i,k) * R(k,j); 
 	  R(i,j) = sum;
-	  if ( (dummy = Abs(vv(i) * sum)) > big )
+	  if ( (dummy = Abs(vv[i] * sum)) > big )
 	    {                 // If the pivot is the best so far
 	      big = dummy;    // we save it and its position.
 	      imax = i;
@@ -346,19 +362,19 @@ static void LU_Backsub(interval_IVector &r, const IMatrix &A, INT *indx,
     {
       ip = indx[i];           // We unscramble the permutation  
       sum = r(ip);            // as we go...
-      r(ip) = r(i);
+      r(ip) = r[i];
       if ( i != 1 )
 	for (j = 1; j <= i - 1; j++)
 	  sum -= A(i, j) * r(j);
-      r(i) = sum;
+      r[i] = sum;
     }
 
   for (i = SYSDIM; i >= 1; i--) // Now we do the backsubstitution.
     {
-     sum = r(i);  
+     sum = r[i];  
      for (j = i + 1; j <= SYSDIM; j++)
        sum -= A(i, j) * r(j);
-     r(i) = sum / A(i, i);  // Store the component of the solution vector.
+     r[i] = sum / A(i, i);  // Store the component of the solution vector.
     }
 }
 

@@ -47,8 +47,9 @@ const short  SYSDIM           = 3;
 //#define COMPUTE_C1 
 
 // define interval vectors and matrices based on interval type
-typedef capd::vectalg::Vector< interval, 0 > IVector;
-typedef capd::vectalg::Matrix< interval, 0, 0 > IMatrix;
+typedef capd::vectalg::Vector < double, 0 > DVector;
+typedef capd::vectalg::Vector < interval, 0 > IVector;
+typedef capd::vectalg::Matrix < interval, 0, 0 > IMatrix;
 ////////////////////////////////////////////////////////////////////
 
 const interval PI = interval::pi(); // jjb -- = Succ(Hull(Constant::Pi));
@@ -84,7 +85,8 @@ bool Subset         (const BOX &, const BOX    &);
 // Redefine some of the global CAPD functions to align with common functions in RODES
 double Sup          ( const interval & );
 double Inf          ( const interval & );
-IVector Inf         ( const IVector & );
+DVector Inf         ( const IVector & ); // Inf for a BOX -- > returns a DVector of infima for each dimension
+DVector Sup         ( const IVector & ); // Sup for a BOX -- > similarly...
 double Mig          ( const interval & );
 double Abs          ( const interval & );
 double Max          ( BOX & );
@@ -92,6 +94,7 @@ double Min          ( const double &, const double & );
 void Resize         ( BOX, int );
 //void Resize ( const interval &, const int & );
 interval SubBounds  ( const double &, const double & );
+IVector SubBounds   ( const DVector &, const DVector & );
 interval Hull       ( const double &, const double & );
 interval Hull       ( const interval &, const interval & );
 interval Hull       ( const double &, const interval & );
@@ -99,6 +102,7 @@ interval Hull       ( const double & );
 bool Subset         ( const double &, const BOX &);
 interval Norm2      ( const BOX & );
 double Mid          ( const interval & );
+bool Intersection   ( IVector &, const IVector& , const IVector& );
 
 ////////////////////////////////////////////////////////////////////
 class parcel
