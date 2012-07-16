@@ -41,9 +41,9 @@ void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
 	  Euler_Box(i) = pcl.box(i) + time * vf(i);
 
       if ( new_sign == + 1)
-	Euler_Box(new_trvl) = intervalHull(Sup(pcl.box(new_trvl)));
+	Euler_Box [ new_trvl ] = interval( Sup ( pcl.box( new_trvl ) ) );
       else
-	Euler_Box(new_trvl) = intervalHull(Inf(pcl.box(new_trvl)));
+	Euler_Box [ new_trvl ] = interval( Inf ( pcl.box( new_trvl ) ) );
 
       if ( j != SWITCH_TRVL_ITERATES ) // We use this result to shrink
 	{	                       // Temp_Switch_Box, and loop again.
@@ -84,12 +84,13 @@ void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
 // it is longer than 'size'. The result is passed via 'PSin'.
 void Single_Partition(const parcel &pcl, List<parcel> &PSin, const double &size)
 {
-  register int i, j;                    // Basic counters  
-  int nr = 1;                           // Current number of BOXes
-  double dx;                            // diam/radius of pcl.box(i)
-  BOX bx[POWER];                        // Storage for the BOXes
+    register int i, j;                    // Basic counters  
+    int nr = 1;                           // Current number of BOXes
+    double dx;                            // diam/radius of pcl.box(i)
+    //    BOX bx ( POWER );                        // Storage for the BOXes
+    BOX *bx = new ( SYSDIM ) IVector[ POWER ]
 
-  bx[0] = pcl.box;  // Initialize 
+    bx[0] = pcl.box;  // Initialize 
 
   for(i = 1; i <= SYSDIM; i++)
     if ( i != pcl.trvl )

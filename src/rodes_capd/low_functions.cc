@@ -64,12 +64,12 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
     DVector dInf, dSup;  // for storage of Inf and Sup results
 
     // Array of two IVectors of length SYSDIM
-    IVector::setDefaultDimension( SYSDIM ); // This should set the
+    // IVector::setDefaultDimension( SYSDIM ); // This should set the
 					    // dimension for the other
 					    // IVectors below. ? What
 					    // is the scope of this
 					    // declaration ?
-    BOX *Poincare = new IVector [ 2 ]; // we want two vectors with number of spatial coords = SYSDIM
+    BOX *Poincare = new ( SYSDIM ) IVector [ 2 ]; // we want two vectors with number of spatial coords = SYSDIM
   
     // trvl \in {1,2,...SYSDIM}, so shift trvl by -1
     if ( pcl.sign == - 1 )     // Set the trvl coordinates
@@ -82,7 +82,7 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
     double   start;
     interval local_dist;
     BOX      vf;
-    BOX *Side_Box = new IVector [ 2 ];
+    BOX *Side_Box = new ( SYSDIM )IVector [ 2 ];
   
   for (register short i = 1; i <= SYSDIM; i++)  
     if ( i != trvl )         
@@ -116,7 +116,7 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 		  else   // Compute min/max P[i] at the corners
 		    { // Construct the small corner boxes 
 		      //BOX Corner_Box ( 2 ); 
-		      BOX *Corner_Box = new IVector [ 2 ];
+		      BOX *Corner_Box = new ( SYSDIM ) IVector [ 2 ];
 		      interval iv[2];
   
 		      Corner_Box[0] = Side_Box[k];
@@ -390,17 +390,17 @@ static void LU_Backsub( IVector &r, const IMatrix &A, int *indx,
 static void Invert_And_Mult(IMatrix &Result, const IMatrix &A,
 			    const IMatrix &B)
 {
-  static int indx[SYSDIM + 1];
-  static IVector Result_IV;
-  static IMatrix LU_IM;
+    static int indx[SYSDIM + 1];
+    static IVector Result_IV;
+    static IMatrix LU_IM ( SYSDIM, SYSDIM );
 
-  Resize(Result, SYSDIM, SYSDIM);
+    //  Resize(Result, SYSDIM, SYSDIM);
 
   LU_Decompose(LU_IM, A, indx);
   for (register short j = 1; j <= SYSDIM; j++)
     {
-      // *** Col ( ) defined in classes.h, wraps IMatrix mathod. Have to figure it out when have internet. ***
-      LU_Backsub( Result_IV, LU_IM, indx, Col(B,j) );
+      // *** Col ( ) defined in classes.h, wraps IMatrix mathod. ***
+      LU_Backsub( Result_IV, LU_IM, indx, Col ( B, j ) );
       SetCol(Result, j, Result_IV);
     }
 }
@@ -420,13 +420,21 @@ static void Invert_And_Mult(IMatrix &Result, const IMatrix &A,
 void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box, 
 		     const interval &time)
 {
-  IMatrix Delta_Matrix;  
-  IMatrix DVf(SYSDIM, SYSDIM); 
- 
-  DVf_Range(DVf, Outer_Box);   
+    IMatrix Delta_Matrix;  
+    IMatrix DVf(SYSDIM, SYSDIM); 
+    
+    DVf_Range(DVf, Outer_Box);   
 
-    IMatrix tDVf = interval(0.0, time) * DVf;
-    Invert_And_Mult(Delta_Matrix, (ID - 0.5 * tDVf), tDVf);
+    IMatrix tDVf ( Hull( interval(0.0), time) * DVf );
+
+    // make a copy of tDVF, since operator* not working with IMatrix,
+    // but *= is working (??)
+    //  Want: Invert_And_Mult( Delta_Matrix, (ID - 0.5 * tDVf), tDVf );
+    // but we use tDVf_copy *= 0.5 instead.  
+    IMatrix tDVf_copy ( tDVf );
+    tDVf_copy *= 0.5;
+
+    Invert_And_Mult( Delta_Matrix, (ID - tDVf_copy), tDVf );
     IMatrix Exp_M ( ID + Delta_Matrix ); 
     IMatrix Pic ( ID + time * DVf * Exp_M ); // << ---- This is init'd with an IVector??
   if ( !Intersection(DPhi, Pic,  Exp_M) )

@@ -95,9 +95,10 @@ bool Subset         ( const double &, const BOX &);
 interval Norm2      ( const BOX & );
 double Mid          ( const interval & );
 bool Intersection   ( IVector &, const IVector& , const IVector& );
-double Diam         ( interval & );
-IVector Col         ( IMatrix &, int & );
-void SetCol         ( IMatrix &, int &, IVector & );
+bool Intersection   ( IMatrix &, const IMatrix& , const IMatrix& );
+double Diam         ( const interval & );
+IVector Col         ( const IMatrix &, const int & );
+void SetCol         ( IMatrix &, const int &, const IVector & );
 
 ////////////////////////////////////////////////////////////////////
 class parcel

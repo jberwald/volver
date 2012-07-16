@@ -357,7 +357,23 @@ double Mid ( const interval &iv )
     return iv . mid ( ) . leftBound ( ) ;
 }
 
+
+// Intersection: IVector
 bool Intersection ( IVector &overlap, const IVector &x, const IVector &y )
+{
+    try
+      {
+	overlap = intersection ( x, y );
+	return true;
+      }
+    catch ( ... )
+      {
+	return false;
+      }
+}
+
+// Intersection: IMatrix
+bool Intersection ( IMatrix &overlap, const IMatrix &x, const IMatrix &y )
 {
     try
       {
@@ -390,12 +406,13 @@ IVector DivBounds ( DVector &dvec, double &d )
 
 IVector Col ( IMatrix &mat, int &idx )
 {
-  // wonder what this method is... ??
-    return mat . getColumn ( i );
+    IVector iv ( mat . column ( idx ) );
+    return iv;
 }
 
-void SetCol ( IMatrix &mat, int &idx, IVector &iv )
+void SetCol ( IMatrix &mat, int &col_num, IVector &iv )
 {
-    mat . setColumn ( ??? );
+    for ( register int i = 1; i <= mat.numberOfRows(); ++i )
+      mat ( i, col_num ) = iv [ i ];
 }
 ////////////////////////////////////////////////////////////////////
