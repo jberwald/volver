@@ -10,11 +10,11 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include <iomanip.h>
-#include <iostream.h>
-#include <fstream.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iomanip>
+#include <iostream>
+#include <fstream>
+#include <stdlib>
+#include <string>
 
 ////////////////////////////////////////////////////////////////////
 

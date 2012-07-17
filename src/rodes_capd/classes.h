@@ -79,11 +79,12 @@ DVector Inf         ( const IVector & ); // Inf for a BOX -- > returns a DVector
 DVector Sup         ( const IVector & ); // Sup for a BOX -- > similarly...
 double Mig          ( const interval & );
 double Abs          ( const interval & );
-double Max          ( BOX & );
+double Max          ( const BOX & );
 double Min          ( const double &, const double & );
 void Resize         ( BOX, int );
 //void Resize ( const interval &, const int & );
-// Returns an interval vector containing an enclosure of the true sum
+
+// Addbounds eturns an interval vector containing an enclosure of the true sum
 // of v and w. (similar for SubBounds, etc.)
 interval AddBounds  ( const double &, const double & );
 interval SubBounds  ( const double &, const double & );

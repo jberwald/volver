@@ -319,32 +319,16 @@ double Abs ( const interval &iv )
 // diameters obtained from diam(). Thus, we have SYSDIM intervals {
 // [a,a], ..., [d,d] }, and we need to find the maximum (minimum). So
 // we simply iterate through the intervals in the vector.
-double Max ( BOX &box )
+double Max ( const BOX &box )
 {
     double theMax = box[0] . leftBound ( ); // singleton intervals
-    IVector::iterator bg = box.begin(), en = box.end();
-    while(bg!=en)
-    {
-      if ( ( *bg ) . leftBound ( )  > theMax )
-	theMax = ( *bg ) . leftBound ( );
-      ++bg;
-    }
+    for ( register int i = 0; i < box . dimension(); ++i )
+      { 
+	if ( box [ i ] . leftBound () > theMax )
+	  theMax = box [ i ] . leftBound ( );
+      }
     return theMax;
 }
-
-// double Min ( const BOX &box )
-// {
-//     double theMin = box[0];
-//     IVector::iterator bg = box.begin(), en = box.end();
-//     while(bg!=en)
-//     {
-//       if ( ( *bg ) < theMin )
-// 	theMin = ( *bg );
-//       ++bg;
-//     }
-//     return theMin;
-// }
-
 
 // This is a 'normal' min function
 double Min ( const double &d1, const double &d2 )
@@ -352,6 +336,7 @@ double Min ( const double &d1, const double &d2 )
     return ! ( d2 < d1 ) ? d1 : d2;    
 }
 
+// This is an interval norm
 interval Norm2 ( const BOX &bx )
 { 
     return bx.euclNorm();

@@ -308,6 +308,7 @@ static void Flow_The_Parcel(const parcel &in_pcl, List<parcel> &Return_List,
 		  In_List += pcl; 
 		}
 	      else 
+		// jjb -- Need Max of { [a,a], [b,b], [c,c] } to get max radius
 		Multiple_Partition ( pcl, In_List, Max ( diam ( pcl.box ) ) / 2.0 );
 	      break;                             
 	    }
