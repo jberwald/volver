@@ -83,10 +83,13 @@ double Max          ( BOX & );
 double Min          ( const double &, const double & );
 void Resize         ( BOX, int );
 //void Resize ( const interval &, const int & );
+// Returns an interval vector containing an enclosure of the true sum
+// of v and w. (similar for SubBounds, etc.)
+interval AddBounds  ( const double &, const double & );
 interval SubBounds  ( const double &, const double & );
 IVector SubBounds   ( const DVector &, const DVector & );
-IVector DivBounds   ( const DVector &, const double & );
 interval DivBounds  ( const double &, const double & );
+IVector DivBounds   ( const DVector &, const double & );
 interval Hull       ( const double &, const double & );
 interval Hull       ( const interval &, const interval & );
 interval Hull       ( const double &, const interval & );

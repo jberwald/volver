@@ -32,7 +32,7 @@ void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
     {                                                          // more than a few laps.
       Vf_Range(vf, Temp_Switch_Box);             // get the flow times
       if ( new_sign == + 1)
-	time = intervalHull( interval( 0 ), + diam(pcl.box(new_trvl)) / vf(new_trvl) );
+	time = intervalHull( interval( 0 ), diam(pcl.box(new_trvl)) / vf(new_trvl) );
       else
 	time = intervalHull( interval( 0 ), - diam(pcl.box(new_trvl)) / vf(new_trvl) );    
       
@@ -88,22 +88,25 @@ void Single_Partition(const parcel &pcl, List<parcel> &PSin, const double &size)
     int nr = 1;                           // Current number of BOXes
     double dx;                            // diam/radius of pcl.box(i)
     //    BOX bx ( POWER );                        // Storage for the BOXes
-    BOX *bx = new ( SYSDIM ) IVector[ POWER ]
+    BOX *bx = new ( SYSDIM ) IVector[ POWER ];
 
     bx[0] = pcl.box;  // Initialize 
 
   for(i = 1; i <= SYSDIM; i++)
     if ( i != pcl.trvl )
       {
-	dx = Sup(pcl.box(i)) - Inf(pcl.box(i));
+	dx = Sup(pcl.box[i]) - Inf(pcl.box[i]);
 	if ( dx > size )      // Check if splitting is necessary
 	  {
 	    dx /= 2.0;
 	    for(j = 0; j < nr; j++)
 	      { // Split in two
 		bx[nr + j] = bx[j];
-		bx[nr + j](i) = intervalHull(Inf(bx[nr + j](i)) + dx, Sup(bx[nr + j](i)));
-		bx[j](i) = intervalHull(Inf(bx[j](i)), Inf(bx[nr + j](i)));
+		// this is a particular interval referenced at bx[][]
+		bx[nr + j][i] = interval( Inf( bx[nr + j][i] ) + dx, 
+					      Sup( bx[nr + j][i] ) );
+		bx[j][i] = interval( Inf( bx[j][i] ), 
+				     Inf( bx[nr + j][i] ) );
 	      }
 	    nr += nr; // There are twice as many boxes now.
 	  }
@@ -123,12 +126,12 @@ void Single_Partition(const parcel &pcl, List<parcel> &PSin, const double &size)
 // Returns the hull of all parcels in PSdone
 void Get_Hull(parcel &hull_pcl, List<parcel> &pcl_List)
 {
-  hull_pcl = First(pcl_List);  // Initialize the local hull
+  hull_pcl = First( pcl_List );  // Initialize the local hull
   
   Next(pcl_List);
-  while( !Finished(pcl_List) ) // Get the rectangular hull of the returned boxes,
+  while( !Finished ( pcl_List ) ) // Get the rectangular hull of the returned boxes,
     {                          // the flow times, and the tangent vector angles.
-      hull_pcl = intervalHull(hull_pcl, Current(pcl_List));
+      hull_pcl = Hull ( hull_pcl, Current( pcl_List ) );
       Next(pcl_List);
     }
 }
@@ -184,12 +187,12 @@ void Get_DPi_Matrix(IMatrix &DPi, const BOX &Outer_Box,
 void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
 		   BOX &Outer_Box)
 {
-  register short i;
-  double temp_time;
-  double trvl_dx, dx;
-  BOX    Inner_Box = pcl.box;              // Initialize.
-  BOX    vf(SYSDIM);  Vf_Range(vf, Outer_Box);
-  double min_time  = Machine::PosInfinity; // A huge initial guess.
+    register short i;
+    double temp_time;
+    double trvl_dx, dx;
+    BOX    Inner_Box = pcl.box;              // Initialize.
+    BOX    vf(SYSDIM);  Vf_Range(vf, Outer_Box);
+    double min_time  = HUGE; //Machine::PosInfinity; // A huge initial guess.
 
   for ( i = 1; i <= SYSDIM; i++ )  // Find the first time any point of Inner_Box hits  
     if ( i != pcl.trvl )        // a non-transversal boundary of Outer_Box.
@@ -209,18 +212,22 @@ void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
     {                                   // in the transversal direction.
       double level = Inf(Inner_Box(pcl.trvl)); // Inf == Sup. 
       if ( pcl.sign == 1 )
-	Outer_Box(pcl.trvl) = intervalHull(level, AddBounds(level, trvl_dx));
+	// want to intervalHull of two interval for the outer_box's
+	// trvl direction
+	Outer_Box [ pcl.trvl ] = intervalHull ( interval ( level ), 
+						AddBounds ( level, trvl_dx ) );
       else
-	Outer_Box(pcl.trvl) = intervalHull(SubBounds(level, trvl_dx), level);
+	Outer_Box [ pcl.trvl ] = intervalHull ( SubBounds ( level, trvl_dx ), 
+						interval ( level ) );
       Vf_Range(vf, Outer_Box);       // Recompute the vector field.
       time = trvl_dx / vf(pcl.trvl); // Compute the flow times required for 
       if ( pcl.sign == - 1 )         // all points in Inner_Box to flow through 
 	time = - time;               // Outer_Box in the transveral direction.
-      time = intervalHull(0.0, time);
+      time = intervalHull ( interval ( 0.0 ), time );
     }
   else // if we flowed as far as we wanted to (i.e., out of Outer_Box(trvl))
     {    
-      time = intervalHull(0.0, min_time);
+      time = Hull( 0.0, min_time);
       if ( pcl.message == CLOSE_STOP )
 	pcl.message = STOP;
     }

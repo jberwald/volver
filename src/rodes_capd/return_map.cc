@@ -308,7 +308,7 @@ static void Flow_The_Parcel(const parcel &in_pcl, List<parcel> &Return_List,
 		  In_List += pcl; 
 		}
 	      else 
-		Multiple_Partition(pcl, In_List, Max(diam(pcl.box)) / 2.0 );
+		Multiple_Partition ( pcl, In_List, Max ( diam ( pcl.box ) ) / 2.0 );
 	      break;                             
 	    }
 	  if ( pcl.message == STOP ) // If we we have completed a full

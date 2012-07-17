@@ -19,6 +19,8 @@
 
 enum MESSAGE_CODE { OK, TOO_LARGE, CLOSE_STOP, STOP, PARTITION };
 
+//#define int HUGE          100000
+
 ////////////////////////////////////////////////////////////////////
 
 void Switch_Transversal   (parcel &, const short &, const BOX &);

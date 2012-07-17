@@ -257,10 +257,15 @@ DVector Sup ( const IVector &vec )
     return supVec;
 }
 
+interval AddBounds ( const double &d1, const double &d2 )
+{
+    interval iv1 ( d1 ), iv2 ( d2 );
+    return iv1 + iv2;
+}
+
 interval SubBounds ( const double &d1, const double &d2 )
 {
-    interval iv1 = interval( d1 );
-    interval iv2 = interval( d2 );
+    interval iv1 ( d1 ), iv2 ( d2 );
     return iv2 - iv1;
 }
 
