@@ -43,7 +43,8 @@ enum command {START_TIMING, SHOW_TIMING, STOP_TIMING};
 
 extern "C" 
 {
-   unsigned int sleep             (unsigned);
+  
+  unsigned int sleep             (unsigned);
 }
 
 static void   print_info        (const char *);
@@ -321,12 +322,12 @@ static bool get_a_grid(iterate &it, const char *mult_name, const char *proc_name
 // Calls to : none
 static find find_fresh_grid(iterate &it, const char *proc_name)
 { 
-  find result = NONE_LEFT;
+    find result = NONE_LEFT;
  
-  ifstream InFile(proc_name, ios::in);
-  iterate temp_it;
-  List<iterate> File_List;
-  while ( InFile >> temp_it )
+    std::ifstream InFile(proc_name, ios::in);
+    iterate temp_it;
+    List<iterate> File_List;
+    while ( InFile >> temp_it )
     {    
       if ( result != GOT_ONE )
 	{
@@ -343,14 +344,14 @@ static find find_fresh_grid(iterate &it, const char *proc_name)
     }
   InFile.close();
 
-  ofstream OutFile(proc_name, ios::out);
-  First(File_List);
-  while( !Finished(File_List) ) 
-    {     
-      OutFile << Current(File_List) << endl;
-      Next(File_List);
-    }
-  OutFile.close();
+    std::ofstream OutFile(proc_name, ios::out);
+    First(File_List);
+    while( !Finished(File_List) ) 
+      {     
+	OutFile << Current(File_List) << endl;
+	Next(File_List);
+      }
+    OutFile.close();
 
   return result;
 };
@@ -373,9 +374,10 @@ static void terminate_process(const char *proc_name)
 //            'Get_Image_Hull',  
 static void work_on_grid(iterate &it, const char *mult_name, const char *proc_name)
 {
-  parcel pcl; Resize(pcl.box, SYSDIM);
-  List<iterate> it_List;
-  List<parcel> pcl_List;
+    parcel pcl; //Resize(pcl.box, SYSDIM);
+    pcl.box ( SYSDIM );
+    List<iterate> it_List;
+    List<parcel> pcl_List;
 
   iterate_to_parcel(it, pcl);
 
@@ -431,91 +433,91 @@ static void work_on_grid(iterate &it, const char *mult_name, const char *proc_na
 static void insert_it_List(List<iterate> &Add_List, const char *mult_name,
 			   const char *proc_name, const bool &external_input)
 {
-  iterate temp_it;
-  List<iterate> Old_List;
+    iterate temp_it;
+    List<iterate> Old_List;
 
-  get_file(mult_name, proc_name);
-  ifstream InFile(proc_name, ios::in);
+    get_file(mult_name, proc_name);
+    std::ifstream InFile(proc_name, ios::in);
 
-  while ( InFile >> temp_it )
-    Old_List += temp_it;  
-  InFile.close();
+    while ( InFile >> temp_it )
+      Old_List += temp_it;  
+    InFile.close();
 
-  iterate old_it;
-  iterate add_it;
-  List<iterate> New_List;
-
-  if ( Length(Old_List) > 0 )
-    { // Length(Old_List) > 0
-      First(Old_List);
-      while( !Finished(Old_List) ) 
-	{ // !Finished(Old_List)                       
-	  old_it = Current(Old_List);	  
-	  if ( !IsEmpty(Add_List) )
-	    {
-	      First(Add_List);
-	      while( !Finished(Add_List) ) 
-		{     
-		  add_it = Current(Add_List);
-		  if ( old_it.ndl.grd == add_it.ndl.grd )
-		    {
-		      /********************************************************/
-		      /*        HERE WE UPDATE THE STATUS OF 'old.it'         */
-		      /*                                                      */
-		      update(old_it, add_it);
-		      /*                                                      */
-		      /*                                                      */ 
-		      /********************************************************/
-		      RemoveCurrent(Add_List);
-		      if ( IsEmpty(Add_List) ) 
-			break;
-		    }
-		  else                        
-		    Next(Add_List);
-		}
-	    }
-	  New_List += old_it;  
-	  Next(Old_List);
-	}
-    }
-
-  if ( Length(Add_List) > 0 )
-    { // Append the remains of Add_List to New_List.
-      First(Add_List);
-      while( !Finished(Add_List) ) 
-	{ 
-	  add_it = Current(Add_List);
-	  if ( !external_input ) // Only widen cone openings if they
-	    {                    // come from internal computations.
-	      /********************************************************/
-	      /*    Widen the cone opening to minimize the risk of    */
-	      /*    having to recompute due to cone leakage.          */
-	      /*                                                      */
+    iterate old_it;
+    iterate add_it;
+    List<iterate> New_List;
+    
+    if ( Length(Old_List) > 0 )
+      { // Length(Old_List) > 0
+	First(Old_List);
+	while( !Finished(Old_List) ) 
+	  { // !Finished(Old_List)                       
+	    old_it = Current(Old_List);	  
+	    if ( !IsEmpty(Add_List) )
+	      {
+		First(Add_List);
+		while( !Finished(Add_List) ) 
+		  {     
+		    add_it = Current(Add_List);
+		    if ( old_it.ndl.grd == add_it.ndl.grd )
+		      {
+			/********************************************************/
+			/*        HERE WE UPDATE THE STATUS OF 'old.it'         */
+			/*                                                      */
+			update(old_it, add_it);
+			/*                                                      */
+			/*                                                      */ 
+			/********************************************************/
+			RemoveCurrent(Add_List);
+			if ( IsEmpty(Add_List) ) 
+			  break;
+		      }
+		    else                        
+		      Next(Add_List);
+		  }
+	      }
+	    New_List += old_it;  
+	    Next(Old_List);
+	  }
+      }
+    
+    if ( Length(Add_List) > 0 )
+      { // Append the remains of Add_List to New_List.
+	First(Add_List);
+	while( !Finished(Add_List) ) 
+	  { 
+	    add_it = Current(Add_List);
+	    if ( !external_input ) // Only widen cone openings if they
+	      {                    // come from internal computations.
+		/********************************************************/
+		/*    Widen the cone opening to minimize the risk of    */
+		/*    having to recompute due to cone leakage.          */
+		/*                                                      */
 #ifdef COMPUTE_C1                             
-	      add_it.ndl.ang = Rescale(add_it.ndl.ang, ANG_FACTOR); 
-	      if ( diam(add_it.ndl.ang) < MIN_CONE_OPENING )
-		{
-		  double mid = Mid(add_it.ndl.ang);
-		  add_it.ndl.ang = mid + SymHull(MIN_CONE_OPENING / 2.0);
-		}
+		add_it.ndl.ang = Rescale(add_it.ndl.ang, ANG_FACTOR); 
+		if ( diam(add_it.ndl.ang) < MIN_CONE_OPENING )
+		  {
+		    double mid = Mid(add_it.ndl.ang);
+		    add_it.ndl.ang = mid + SymHull(MIN_CONE_OPENING / 2.0);
+		  }
 #endif                  
-	      /*   Now the cone opening is at least MIN_CONE_OPENING. */
-	      /*                                                      */ 
-	      /********************************************************/    
-	    }
-	  New_List += add_it;                     
-	  Next(Add_List);                     
-	}                                     
-    }
-  ofstream OutFile(proc_name, ios::out);
-  First(New_List);
-  while( !Finished(New_List) ) 
-    { // Write New_List to owned file.    
-      OutFile << Current(New_List) << endl;;
-      Next(New_List);
-    }
-  OutFile.close();
-  release_file(mult_name, proc_name);
+		/*   Now the cone opening is at least MIN_CONE_OPENING. */
+		/*                                                      */ 
+		/********************************************************/    
+	      }
+	    New_List += add_it;                     
+	    Next(Add_List);                     
+	  }                                     
+      }
+    std::ofstream OutFile(proc_name, ios::out);
+    First(New_List);
+    while( !Finished(New_List) ) 
+      { // Write New_List to owned file.    
+	OutFile << Current(New_List) << endl;;
+	Next(New_List);
+      }
+    OutFile.close();
+    release_file(mult_name, proc_name);
 } 
 
 ////////////////////////////////////////////////////////////////////

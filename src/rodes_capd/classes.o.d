@@ -1,4 +1,4 @@
-classes.o classes.o: classes.cc classes.h /usr/include/c++/4.2.1/iomanip \
+classes.o: classes.cc classes.h /usr/include/c++/4.2.1/iomanip \
   /usr/include/c++/4.2.1/bits/c++config.h \
   /usr/include/c++/4.2.1/bits/os_defines.h /usr/include/unistd.h \
   /usr/include/_types.h /usr/include/sys/_types.h \

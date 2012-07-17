@@ -335,10 +335,11 @@ static void Compute_exits(List<parcel> &In_List, List<parcel> &Result_List)
 // Adds the image(s) to the end of the list Image_List.
 void Cube_Exit(const parcel &pcl, List<parcel> &Image_List, const double &max_size)
 {
-  parcel hull_pcl; Resize(hull_pcl.box, SYSDIM);
-  List<parcel> Split_List, Widened_List;
-  List<parcel> Pre_Enter_List, Enter_List, Exit_List;
-  List<parcel> Lumpy_List, Flat_List;
+    parcel hull_pcl;
+    hull_pcl.box ( SYSDIM );
+    List<parcel> Split_List, Widened_List;
+    List<parcel> Pre_Enter_List, Enter_List, Exit_List;
+    List<parcel> Lumpy_List, Flat_List;
 
   // 1;
   Divide(pcl, Split_List, max_size, 1);

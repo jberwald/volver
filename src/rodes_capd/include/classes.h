@@ -74,14 +74,15 @@ bool Subset         (const BOX &, const BOX    &);
 
 // Redefine some of the global CAPD functions to align with common functions in RODES
 double Sup          ( const interval & );
-DVector Sup         ( const IVector & ); // Sup for a BOX -- > similar to Inf
 double Inf          ( const interval & );
 DVector Inf         ( const IVector & ); // Inf for a BOX -- > returns a DVector of infima for each dimension
+DVector Sup         ( const IVector & ); // Sup for a BOX -- > similarly...
 double Mig          ( const interval & );
 double Abs          ( const interval & );
 double Max          ( const BOX & );
 double Min          ( const double &, const double & );
 void Resize         ( BOX, int );
+//void Resize ( const interval &, const int & );
 
 // Addbounds eturns an interval vector containing an enclosure of the true sum
 // of v and w. (similar for SubBounds, etc.)

@@ -9,14 +9,17 @@
 
 #include "request.h"
 
+using namespace std;
+
 ////////////////////////////////////////////////////////////////////
 
 static const unsigned WAIT_FOR_FILE = 1; // Wait 1 sec if the file is occupied.
 
 extern "C" 
 {
-  static void sleep  (unsigned);
-  static int  rename (const char *, const char *);
+  unsigned int sleep ( unsigned );
+  //  static void sleep  (unsigned);
+  int  rename (const char *, const char *);
 }
 
 ////////////////////////////////////////////////////////////////////

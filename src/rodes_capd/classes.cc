@@ -225,12 +225,12 @@ ostream & operator << (ostream &out, const parcel &pcl)
 
 double Sup ( const interval &iv )
 { 
-    return iv.rightBound();
+    return iv . rightBound ();
 }
 
 double Inf ( const interval &iv )
 {
-    return iv.leftBound();
+    return iv . leftBound ();
 }
 
 // Returns an IVector containing the lower bounds of the IVector vec. as singletons. 
@@ -376,31 +376,33 @@ bool Intersection ( IMatrix &overlap, const IMatrix &x, const IMatrix &y )
       }
 }
 
-double Diam ( interval &iv )
+double Diam ( const interval &iv )
 {
     return diam ( iv ) . leftBound();
 }
 
-interval DivBounds ( double &d1, double &d2 )
+interval DivBounds ( const double &d1, const double &d2 )
 {
     interval iv ( d1 / d2 );
     return iv;
 }
 
-IVector DivBounds ( DVector &dvec, double &d )
+IVector DivBounds ( const DVector &dvec, const double &d )
 {
-    dvec /= d;
-    IVector ivec ( dvec ); 
+    DVector vec_copy = dvec;
+    vec_copy /= d;
+    IVector ivec ( vec_copy ); 
     return ivec;
 }
 
-IVector Col ( IMatrix &mat, int &idx )
+// Return column 'idx' of the matrix 'mat'
+IVector Col ( const IMatrix &mat, const int &idx )
 {
     IVector iv ( mat . column ( idx ) );
     return iv;
 }
 
-void SetCol ( IMatrix &mat, int &col_num, IVector &iv )
+void SetCol ( IMatrix &mat, const int &col_num, const IVector &iv )
 {
     for ( register int i = 1; i <= mat.numberOfRows(); ++i )
       mat ( i, col_num ) = iv [ i ];

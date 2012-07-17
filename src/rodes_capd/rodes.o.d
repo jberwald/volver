@@ -268,8 +268,7 @@ rodes.o rodes.o: rodes.cc /usr/include/c++/4.2.1/iostream \
   /Users/jberwald/src/capd/capdAlg/include/capd/basicalg/TypeTraits.h \
   /Users/jberwald/src/capd/capdAlg/include/capd/basicalg/doubleFun.h \
   error_handler.h convert.h flow_functions.h list.h vector_field.h \
-  low_functions.h return_map.h fixed_point.h request.h \
-  /usr/include/c++/4.2.1/backward/fstream.h
+  low_functions.h return_map.h fixed_point.h request.h
 
 /usr/include/c++/4.2.1/iostream:
 
@@ -930,5 +929,3 @@ return_map.h:
 fixed_point.h:
 
 request.h:
-
-/usr/include/c++/4.2.1/backward/fstream.h:

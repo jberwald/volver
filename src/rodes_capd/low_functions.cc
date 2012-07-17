@@ -93,7 +93,7 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 	
 	Side_Box[1] = Outer_Box;	// Make Side_Box (upper) 
 	// apply necessary distortion to box
-	Side_Box[1](i) = Sup(Inner_Box[i]) + dx[i];	    
+	Side_Box[1] [ i ] = Sup(Inner_Box[i]) + dx[i];	    
 	
 	for (register short j = 1; j <= SYSDIM; j++) 
 	  { // Loop through j (j is the partial derivative-coordinate)
@@ -120,9 +120,9 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 		      interval iv[2];
   
 		      Corner_Box[0] = Side_Box[k];
-		      Corner_Box[0](j) = Inf(Inner_Box(j)) + dx(j);    
+		      Corner_Box[0][ j ] = Inf(Inner_Box[ j ]) + dx[ j ];    
 		      Corner_Box[1] = Side_Box[k];
-		      Corner_Box[1](j) = Sup(Inner_Box(j)) + dx(j);	       
+		      Corner_Box[1][ j ] = Sup(Inner_Box[ j ]) + dx[ j ];	       
 
 		      for (register short m = 0; m < 2; m++)
 			{ // m indicates the Corner_Box in use
@@ -303,7 +303,7 @@ static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
 	  char *msg = "Error: 'LU_Decompose'. Singular Matrix";
 	  throw Error_Handler(msg);
 	}
-      vv[i] = Sup(DivBounds(1.0, big));  // Store the scaling
+      vv[i] = Sup ( DivBounds ( 1.0, big ) );  // Store the scaling
     }
 
   for (j = 1; j <= SYSDIM; j++)   // Loop over columns for Crout's method. 
@@ -337,7 +337,7 @@ static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
 	      R(imax, k) = R(j, k);
 	      R(j, k)    = temp;
 	    }
-	  vv(imax) = vv(j); // ...and interchange the the scale factor
+	  vv [ imax ] = vv [ j ]; // ...and interchange the the scale factor
 	}
       indx[j] = imax;
       if ( Subset(0.0, R(j, j)) ) // If the pivot element contains zero...
@@ -368,10 +368,10 @@ static void LU_Backsub( IVector &r, const IMatrix &A, int *indx,
     {
       ip = indx[i];           // We unscramble the permutation  
       sum = r(ip);            // as we go...
-      r(ip) = r[i];
+      r(ip) = r [ i ];
       if ( i != 1 )
 	for (j = 1; j <= i - 1; j++)
-	  sum -= A(i, j) * r(j);
+	  sum -= A(i, j) * r[ j ];
       r[i] = sum;
     }
 
@@ -379,7 +379,7 @@ static void LU_Backsub( IVector &r, const IMatrix &A, int *indx,
     {
      sum = r[i];  
      for (j = i + 1; j <= SYSDIM; j++)
-       sum -= A(i, j) * r(j);
+       sum -= A(i, j) * r[ j ];
      r[i] = sum / A(i, i);  // Store the component of the solution vector.
     }
 }
@@ -391,17 +391,16 @@ static void Invert_And_Mult(IMatrix &Result, const IMatrix &A,
 			    const IMatrix &B)
 {
     static int indx[SYSDIM + 1];
-    static IVector Result_IV;
+    static IVector Result_IV;  // jjb -- this holds results in
+			       // LU_Backsub(), so no need to fix a size
     static IMatrix LU_IM ( SYSDIM, SYSDIM );
-
-    //  Resize(Result, SYSDIM, SYSDIM);
 
   LU_Decompose(LU_IM, A, indx);
   for (register short j = 1; j <= SYSDIM; j++)
     {
-      // *** Col ( ) defined in classes.h, wraps IMatrix mathod. ***
+      // *** Col ( ) defined in classes.h, wraps IMatrix method. ***
       LU_Backsub( Result_IV, LU_IM, indx, Col ( B, j ) );
-      SetCol(Result, j, Result_IV);
+      SetCol( Result, j, Result_IV );
     }
 }
 
@@ -420,7 +419,9 @@ static void Invert_And_Mult(IMatrix &Result, const IMatrix &A,
 void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box, 
 		     const interval &time)
 {
-    IMatrix Delta_Matrix;  
+  // Since Delta_Matrix is 'Result' in Invert_And_Mult, set it's size
+  // here
+    IMatrix Delta_Matrix ( SYSDIM, SYSDIM );  
     IMatrix DVf(SYSDIM, SYSDIM); 
     
     DVf_Range(DVf, Outer_Box);   
@@ -434,6 +435,7 @@ void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box,
     IMatrix tDVf_copy ( tDVf );
     tDVf_copy *= 0.5;
 
+    // jjb -- Delta_Matrix is not sized at this point
     Invert_And_Mult( Delta_Matrix, (ID - tDVf_copy), tDVf );
     IMatrix Exp_M ( ID + Delta_Matrix ); 
     IMatrix Pic ( ID + time * DVf * Exp_M ); // << ---- This is init'd with an IVector??
