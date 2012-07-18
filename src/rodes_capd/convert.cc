@@ -17,16 +17,10 @@ void iterate_to_parcel(const iterate &it, parcel &pcl)
 {
     BOX rect ( ndl_to_box( it.ndl ) );
 
-
-    cout << "  rect " << rect << endl;
-
-    pcl.box [ 0 ] = rect [ 0 ];
-    pcl.box [ 1 ] = rect [ 1 ];
-    pcl.box [ 2 ] = interval ( 27.0, 27.0 );
-
-    //    cout << "  box " << pcl.box << endl;
-    
-
+    interval irect[] = { rect [ 0 ], rect [ 1 ], interval ( 27., 27. ) };
+    IVector iv ( 3, irect );
+    // fill the box and other parcel attributes
+    pcl.box = iv;
     pcl.time = interval ( 0.0, 0.0 );
     pcl.trvl = 3; pcl.sign = -1; pcl.message = 0;
 #ifdef COMPUTE_C1

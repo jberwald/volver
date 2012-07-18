@@ -59,7 +59,8 @@ int      Sign           (const interval &);
 void     Show_Interval  (const interval &);
 
 ////////////////////////////////////////////////////////////////////
-
+// *** We define the BOX type here to be an IVector ***
+//
 #define BOX IVector    // Shorthand
 
 BOX  Center         (const BOX &);
@@ -107,7 +108,7 @@ void SetCol         ( IMatrix &, const int &, const IVector & );
 class parcel
 {
 public:
-  BOX box;                   // The coordinates of all the variables 
+    BOX box;                   // The coordinates of all the variables 
 #ifdef COMPUTE_C1
   interval angles;
   interval expansion;

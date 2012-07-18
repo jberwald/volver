@@ -376,7 +376,8 @@ static void terminate_process(const char *proc_name)
 static void work_on_grid(iterate &it, const char *mult_name, const char *proc_name)
 {
     parcel pcl; //Resize(pcl.box, SYSDIM);
-    pcl.box ( SYSDIM );
+    //pcl.box
+
     List<iterate> it_List;
     List<parcel> pcl_List;
 
