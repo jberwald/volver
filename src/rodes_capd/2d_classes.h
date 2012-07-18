@@ -53,9 +53,9 @@ class grid
   friend BOX grid_to_box(const grid &g)
     {
       BOX result(2);
-      result(1) = interval(g.u - 1, g.u + 1);
-      result(2) = interval(g.v - 1, g.v + 1);
-      result *= pow(2, -g.P);
+      result [ 0 ]  = interval ( g.u - 1, g.u + 1 );
+      result [ 1 ] = interval ( g.v - 1, g.v + 1 );
+      result *= power( 2, -g.P );
       return result;
     }
   friend ostream & operator << (ostream &out, const grid &g)

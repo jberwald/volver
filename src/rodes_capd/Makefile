@@ -44,15 +44,7 @@ CAPDFLAGS = -D__USE_FILIB__ -frounding-math -ffloat-store -I/Users/jberwald/src/
 #CAPDLIBS = `${CAPDBINDIR}capd-config --libs`
 CAPDLIBS = /Users/jberwald/src/capd/capdExt/boost/src/libcapd_boost_program_options.a /Users/jberwald/src/capd/capdExt/boost/src/libcapd_boost_serialization.a /Users/jberwald/src/capd/capdExt/boost/src/libcapd_boost_filesystem.a /Users/jberwald/src/capd/capdExt/boost/src/libcapd_boost_system.a /Users/jberwald/src/capd/capdDynSys/src/capd/dynsysfacade/libcapddynsysfacade.a /Users/jberwald/src/capd/capdDynSys/src/capd/covrel/libcapdcovrel.a /Users/jberwald/src/capd/capdDynSys/src/capd/diffIncl/libcapddiffIncl.a /Users/jberwald/src/capd/capdDynSys/src/capd/poincare/libcapdpoincare.a /Users/jberwald/src/capd/capdDynSys/src/capd/diffAlgebra/libcapddiffAlgebra.a /Users/jberwald/src/capd/capdDynSys/src/capd/dynsys/libcapddynsys.a /Users/jberwald/src/capd/capdDynSys/src/capd/map/libcapdmap.a /Users/jberwald/src/capd/capdDynSys/src/capd/dynset/libcapddynset.a /Users/jberwald/src/capd/capdDynSys/src/capd/geomset/libcapdgeomset.a /Users/jberwald/src/capd/capdAux/src/capd/auxil/libcapdauxil.a /Users/jberwald/src/capd/capdAlg/src/capd/basicalg/libcapdbasicalg.a /Users/jberwald/src/capd/capdAlg/src/capd/algfacade/libcapdalgfacade.a /Users/jberwald/src/capd/capdAlg/src/capd/matrixAlgorithms/libcapdmatrixAlgorithms.a /Users/jberwald/src/capd/capdAlg/src/capd/rounding/libcapdrounding.a /Users/jberwald/src/capd/capdAlg/src/capd/vectalg/libcapdvectalg.a /Users/jberwald/src/capd/capdAlg/src/capd/intervals/libcapdintervals.a /Users/jberwald/src/capd/capdExt/src/capd/alglib/libcapdalglib.a /Users/jberwald/src/capd/capdExt/src/capd/bzip2/libcapdbzip2.a /Users/jberwald/src/capd/capdExt/src/capd/chom/libcapdchom.a /Users/jberwald/src/capd/capdExt/src/capd/homology/libcapdhomology.a /Users/jberwald/src/capd/capdRedHom/src/capd/bitSet/libcapdbitSet.a /Users/jberwald/src/capd/capdRedHom/src/capd/cubSet/libcapdcubSet.a /Users/jberwald/src/capd/capdRedHom/src/capd/homAlgebra/libcapdhomAlgebra.a /Users/jberwald/src/capd/capdRedHom/src/capd/redAlg/libcapdredAlg.a /Users/jberwald/src/capd/capdRedHom/src/capd/repSet/libcapdrepSet.a -L/Users/jberwald/src/capd/capdExt/filibsrc/libprim/.libs -lprim 
 
-CXXFLAGS = $(CAPDFLAGS) $(INCLS) -I./include -O2 -Wall
-
-
-
-# Enter the path for the PROFIL/BIAS directory here.
-#PROFIL = /home/warwick/RODES/IA/MY_PROFIL
-
-#P_INCL = -I$(PROFIL)/incl -IBIAS
-#P_LIBS = -L$(PROFIL)/lib -lProfil -LBIAS -lBias
+CXXFLAGS = $(CAPDFLAGS) $(INCLS) -I./include -O2 -Wall -g -Werror
 
 # -----------------------------------------------------------------------
 

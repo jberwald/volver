@@ -15,13 +15,20 @@
 // Calls to : 'none'
 void iterate_to_parcel(const iterate &it, parcel &pcl)
 {
-  BOX rect = ndl_to_box(it.ndl);
+    BOX rect ( ndl_to_box( it.ndl ) );
 
-  pcl.box(1) = rect(1);
-  pcl.box(2) = rect(2);
-  pcl.box(3) = interval(27.0, 27.0);
-  pcl.time   = interval(0.0, 0.0);
-  pcl.trvl = 3; pcl.sign = -1; pcl.message = 0;
+
+    cout << "  rect " << rect << endl;
+
+    pcl.box [ 0 ] = rect [ 0 ];
+    pcl.box [ 1 ] = rect [ 1 ];
+    pcl.box [ 2 ] = interval ( 27.0, 27.0 );
+
+    //    cout << "  box " << pcl.box << endl;
+    
+
+    pcl.time = interval ( 0.0, 0.0 );
+    pcl.trvl = 3; pcl.sign = -1; pcl.message = 0;
 #ifdef COMPUTE_C1
   pcl.angles    = it.ndl.ang;         // pcl.angles    = it.dl.ang;
   pcl.expansion = interval(1.0, 1.0); // pcl.expansion = it.dl.exp;
@@ -31,12 +38,12 @@ void iterate_to_parcel(const iterate &it, parcel &pcl)
 ////////////////////////////////////////////////////////////////////
 // Called by: 'get_the_flags', 'pcl_List_to_it_List'.
 // Calls to : 'none'
-void rect_to_it_List(const BOX &box, const int &power, List<iterate> &it_List)
+void rect_to_it_List(const BOX &box, const int &thePower, List<iterate> &it_List)
 {
   int i, j;
   int inf[2], sup[2];
   iterate it;
-  BOX rect = pow(2, power) * box; 
+  BOX rect = power(2, thePower) * box; 
 
   for ( i = 0; i < 2; i++ )
     {
@@ -50,7 +57,7 @@ void rect_to_it_List(const BOX &box, const int &power, List<iterate> &it_List)
 	sup[i]++;
     }
 
-  it.ndl.grd.P  = power;
+  it.ndl.grd.P  = thePower;
   it.ndl.c_stat = NOT_DONE;
   it.ndl.h_stat = NOT_HIT;
   it.inf_grd = NULL_GRID;

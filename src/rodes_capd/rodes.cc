@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
   while ( get_a_grid(it, mult_file, proc_file) )
     {
       counter++;
+
       work_on_grid(it, mult_file, proc_file);
       clock(SHOW_TIMING);
     }
