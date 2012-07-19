@@ -66,9 +66,9 @@ interval Rescale(const interval &iv, const double &factor)
 
 // Checks if the 'double' dbl is
 // contained in the 'interval' iv
-// jb -- The <= seems to work the same in CAPD
+// jb -- Using iv.contains(..)
 bool Subset(const double &dbl, const interval &iv) 
-{ return ( dbl <= iv ); }
+{ return iv.contains ( dbl ); }
 
 // Checks if the 'interval' iv1 is
 // a subset of the 'interval' iv2
@@ -367,7 +367,7 @@ bool Intersection ( IMatrix &overlap, const IMatrix &x, const IMatrix &y )
 {
     try
       {
-	overlap = intersection ( x, y );
+	intersection ( x, y, overlap );
 	return true;
       }
     catch ( ... )

@@ -254,25 +254,40 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
     BOX dx = capd::vectalg::intervalHull ( SubBounds( Inf( Outer_Box ), Inf( pcl.box ) ),
 					   SubBounds( Sup( Outer_Box ), Sup( pcl.box ) ) );
 
+    cout << endl;
+    cout << "dx = " << dx << endl;
+
   bool zero_indicator = false;     // Check for possible zeroes of the
   for (register short i = 1; i <= SYSDIM; i++)    
-    if ( i != pcl.trvl )           // partial (space) derivatives (DPi). 
-      for (register short j = 1; j <= SYSDIM; j++)
-	if ( j != pcl.trvl )
-	  if ( Subset(0.0, DPi(i, j)) )
+    {
+      if ( i != pcl.trvl )           // partial (space) derivatives (DPi). 
+	{
+	  for (register short j = 1; j <= SYSDIM; j++)
 	    {
-	      zero_indicator = true;
-	      if ( i == j )
+	      if ( j != pcl.trvl )
 		{
-		  char *msg = "Error: 'Flow_By_Corner_Method'"
-		    " DPhi vanishes on the diagonal!";
-		  throw Error_Handler(msg);
-		}
-	    }
+		  if ( Subset(0.0, DPi(i, j)) )
+		    {
+		      cout << endl;
+		      cout << "i,j = " << i << j << endl;
+		      cout << "DPi = " << DPi << endl;
+		      zero_indicator = true;
+		      if ( i == j )
+			{
+			  	  cout << "HERE" << endl;
 
+			  char *msg = "Error: 'Flow_By_Corner_Method'"
+			    " DPhi vanishes on the diagonal!";
+			  throw Error_Handler(msg);
+			}
+		    }
+		}
+	    } // END  for j
+	} 
+    } // END for i
     double trvl_dist = Diam( dx( pcl.trvl ) );   // Get the transversal distance
-  if ( pcl.sign == -1 )
-    trvl_dist = - trvl_dist;
+    if ( pcl.sign == -1 )
+      trvl_dist = - trvl_dist;
 
   if ( zero_indicator )
     Some_May_Vanish(Result_Box, DPi, pcl, Outer_Box, dx, trvl_dist);
@@ -306,7 +321,8 @@ static void LU_Decompose(IMatrix &R, const IMatrix &A, int *indx)
       vv[i] = Sup ( DivBounds ( 1.0, big ) );  // Store the scaling
     }
 
-  for (j = 1; j <= SYSDIM; j++)   // Loop over columns for Crout's method. 
+  // Loop over columns for Crout's method.
+  for (j = 1; j <= SYSDIM; j++)    
     {                      
       imax = j; // This row is missing in "Numerical Recipies in C".
       for (i = 1; i < j; i++)  // Solve for the upper elements.
@@ -438,7 +454,7 @@ void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box,
     // jjb -- Delta_Matrix is not sized at this point
     Invert_And_Mult( Delta_Matrix, (ID - tDVf_copy), tDVf );
     IMatrix Exp_M ( ID + Delta_Matrix ); 
-    IMatrix Pic ( ID + time * DVf * Exp_M ); // << ---- This is init'd with an IVector??
+    IMatrix Pic ( ID + time * DVf * Exp_M ); 
   if ( !Intersection(DPhi, Pic,  Exp_M) )
     {
       cout << "Empty intersection!!!" << endl;

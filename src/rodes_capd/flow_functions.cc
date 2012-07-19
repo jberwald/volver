@@ -149,23 +149,25 @@ void Get_Hull(parcel &hull_pcl, List<parcel> &pcl_List)
 void Get_DPi_Matrix(IMatrix &DPi, const BOX &Outer_Box, 
 		    const short &trvl, const interval &time, const BOX &Image)
 {
-  register short i, j;
-  interval quotient;
-  BOX vf(SYSDIM); Vf_Range(vf, Image); // Vf_Range(vf, Outer_Box);
-  IMatrix DPhi;
+    register short i, j;
+    interval quotient;
+    BOX vf(SYSDIM); Vf_Range(vf, Image); // Vf_Range(vf, Outer_Box);
 
-  Get_DPhi_Matrix(DPhi, Outer_Box, time);
-  DPi = DPhi;
-  for (i = 1; i <= SYSDIM; i++)
-    if ( i != trvl )
-      {
-	quotient = vf(i) / vf(trvl);
-	for (j = 1; j <= SYSDIM; j++)  
-	  DPi(i, j) -= quotient * DPhi(trvl, j);
-      }
-    else
-      for (j = 1; j <= SYSDIM; j++) // Not really neccessary, but
-	DPi(i, j) = 0.0;         // it makes debugging clearer.
+    IMatrix DPhi ( SYSDIM, SYSDIM );
+
+    Get_DPhi_Matrix(DPhi, Outer_Box, time);
+    
+    DPi = DPhi;
+    for (i = 1; i <= SYSDIM; i++)
+      if ( i != trvl )
+	{
+	  quotient = vf[i-1] / vf[trvl-1];
+	  for (j = 1; j <= SYSDIM; j++)  
+	    DPi(i, j) -= quotient * DPhi(trvl, j);
+	}
+      else
+	for (j = 1; j <= SYSDIM; j++) // Not really neccessary, but
+	  DPi(i, j) = 0.0;         // it makes debugging clearer.
 }
 
 ////////////////////////////////////////////////////////////////////

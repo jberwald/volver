@@ -96,6 +96,8 @@ interval Hull       ( const interval &, const interval & );
 interval Hull       ( const double &, const interval & );
 interval Hull       ( const double & );
 bool Subset         ( const double &, const BOX &);
+bool Subset         ( const double &, const interval & );
+//bool Subset         ( const double &, const IMatrix & );
 interval Norm2      ( const BOX & );
 double Mid          ( const interval & );
 bool Intersection   ( IVector &, const IVector& , const IVector& );

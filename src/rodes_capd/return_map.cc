@@ -205,6 +205,9 @@ static void Flow(parcel &pcl, const double &trvl_dist)
   result.box = Tight_Box;  // Update the outgoing result
   result.time += time;
   pcl = result;
+
+    cout << "pcl.box = " << pcl.box << endl;
+
 }
 
 ////////////////////////////////////////////////////////////////////
