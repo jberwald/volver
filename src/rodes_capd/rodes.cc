@@ -385,11 +385,14 @@ static void work_on_grid(iterate &it, const char *mult_name, const char *proc_na
 
   try
     {
+      cout << "     **** first HERE **** " << endl;
   /***************************************************************/
   /*        HERE WE MAKE THE ONLY CALL TO THE INTEGRATOR         */
   /*                                                             */
       if ( it.ndl.c_stat != RESERVED )
 	Compute_the_return(pcl, pcl_List);
+
+      cout << "HERE" << endl;
   /*                                                             */
   /*                                                             */
   /***************************************************************/

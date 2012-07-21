@@ -254,9 +254,6 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
     BOX dx = capd::vectalg::intervalHull ( SubBounds( Inf( Outer_Box ), Inf( pcl.box ) ),
 					   SubBounds( Sup( Outer_Box ), Sup( pcl.box ) ) );
 
-    cout << endl;
-    cout << "dx = " << dx << endl;
-
   bool zero_indicator = false;     // Check for possible zeroes of the
   for (register short i = 1; i <= SYSDIM; i++)    
     {
@@ -268,14 +265,9 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
 		{
 		  if ( Subset(0.0, DPi(i, j)) )
 		    {
-		      cout << endl;
-		      cout << "i,j = " << i << j << endl;
-		      cout << "DPi = " << DPi << endl;
 		      zero_indicator = true;
 		      if ( i == j )
 			{
-			  	  cout << "HERE" << endl;
-
 			  char *msg = "Error: 'Flow_By_Corner_Method'"
 			    " DPhi vanishes on the diagonal!";
 			  throw Error_Handler(msg);
@@ -441,7 +433,6 @@ void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box,
     IMatrix DVf(SYSDIM, SYSDIM); 
     
     DVf_Range(DVf, Outer_Box);   
-
     IMatrix tDVf ( Hull( interval(0.0), time) * DVf );
 
     // make a copy of tDVF, since operator* not working with IMatrix,
@@ -455,6 +446,7 @@ void Get_DPhi_Matrix(IMatrix &DPhi, const BOX &Outer_Box,
     Invert_And_Mult( Delta_Matrix, (ID - tDVf_copy), tDVf );
     IMatrix Exp_M ( ID + Delta_Matrix ); 
     IMatrix Pic ( ID + time * DVf * Exp_M ); 
+
   if ( !Intersection(DPhi, Pic,  Exp_M) )
     {
       cout << "Empty intersection!!!" << endl;

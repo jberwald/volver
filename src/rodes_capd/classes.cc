@@ -365,15 +365,7 @@ bool Intersection ( IVector &overlap, const IVector &x, const IVector &y )
 // Intersection: IMatrix
 bool Intersection ( IMatrix &overlap, const IMatrix &x, const IMatrix &y )
 {
-    try
-      {
-	intersection ( x, y, overlap );
-	return true;
-      }
-    catch ( ... )
-      {
-	return false;
-      }
+    return intersection ( x, y, overlap );
 }
 
 double Diam ( const interval &iv )

@@ -156,14 +156,17 @@ void Get_DPi_Matrix(IMatrix &DPi, const BOX &Outer_Box,
     IMatrix DPhi ( SYSDIM, SYSDIM );
 
     Get_DPhi_Matrix(DPhi, Outer_Box, time);
-    
+
     DPi = DPhi;
+
     for (i = 1; i <= SYSDIM; i++)
       if ( i != trvl )
 	{
 	  quotient = vf[i-1] / vf[trvl-1];
 	  for (j = 1; j <= SYSDIM; j++)  
-	    DPi(i, j) -= quotient * DPhi(trvl, j);
+	    {
+	      DPi(i, j) -= quotient * DPhi(trvl, j);
+	    }
 	}
       else
 	for (j = 1; j <= SYSDIM; j++) // Not really neccessary, but

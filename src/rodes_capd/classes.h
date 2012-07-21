@@ -9,6 +9,8 @@
 #ifndef CLASSES_H
 #define CLASSES_H
 
+#define DEBUG  1
+
 #include <iomanip>
 #include <iostream>
 #include <cmath>

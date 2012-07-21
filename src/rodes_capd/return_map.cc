@@ -162,7 +162,14 @@ static bool Stop(const parcel &pcl, const double &dist, const stop_parameters &s
 // not by more than 'trvl_dist' at a time.
 static void Flow(parcel &pcl, const double &trvl_dist)
 {
-  parcel result = pcl;  // Pass on the unchanged pieces by copying.
+  static parcel result = pcl;  // Pass on the unchanged pieces by copying.
+
+    #ifdef DEBUG
+    cout << endl;
+    cout << "IN FLOW()" << endl;
+    cout << "result = " << result.box << endl;
+    #endif
+    
   BOX Outer_Box(SYSDIM);
 
   double mid, rad;   
@@ -170,20 +177,24 @@ static void Flow(parcel &pcl, const double &trvl_dist)
     if ( i == pcl.trvl ) // Widen trvl direction.
       {
 	if ( pcl.sign == 1 ) // Inf == Sup
-	  Outer_Box [i] = Hull ( Inf ( pcl.box[i] ), pcl.box[i] + trvl_dist );	
+	  Outer_Box [i-1] = Hull ( Inf ( pcl.box[i-1] ), pcl.box[i-1] + trvl_dist );	
 	else
-	  Outer_Box[i] = Hull ( Inf( pcl.box[i] ) - trvl_dist, pcl.box[i]);	
+	  Outer_Box[i-1] = Hull ( Inf( pcl.box[i-1] ) - trvl_dist, pcl.box[i-1]);	
       }
     else // i != pcl.trvl
       {
-	rad = (Sup(pcl.box(i)) - Inf(pcl.box(i))) / 2.0;
-	mid = Inf(pcl.box(i)) + rad;
+	rad = (Sup(pcl.box[i-1]) - Inf(pcl.box[i-1])) / 2.0;
+	mid = Inf(pcl.box[i-1]) + rad;
 	rad *= SCALE_FACTOR;
-	Outer_Box(i) = Hull(mid - rad, mid + rad);
+	Outer_Box[i-1] = Hull(mid - rad, mid + rad);
       }
 
   interval time;
   Get_Flow_Time(time, result, trvl_dist, Outer_Box);
+
+    #ifdef DEBUG
+    cout << "time = " << time << endl;
+    #endif
 
   // Now, we tighten the enclosure...
   IMatrix DPi(SYSDIM, SYSDIM);
@@ -191,9 +202,10 @@ static void Flow(parcel &pcl, const double &trvl_dist)
 
   BOX Image = pcl.box + time * Vf_Range(Outer_Box);
   if ( pcl.sign == 1 )
-    Image(pcl.trvl) = Hull(Sup(Outer_Box(pcl.trvl)));
+    Image [ pcl.trvl-1 ] = Hull(Sup( Outer_Box[ pcl.trvl-1 ] ));
   else
-    Image(pcl.trvl) = Hull(Inf(Outer_Box(pcl.trvl)));
+    Image [ pcl.trvl-1 ] = Hull(Inf( Outer_Box[ pcl.trvl-1 ] ));
+
   Get_DPi_Matrix(DPi, Outer_Box, pcl.trvl, time, Image);
 
   Flow_By_Corner_Method(Tight_Box, DPi, pcl, Outer_Box);
@@ -206,7 +218,9 @@ static void Flow(parcel &pcl, const double &trvl_dist)
   result.time += time;
   pcl = result;
 
+    #ifdef DEBUG
     cout << "pcl.box = " << pcl.box << endl;
+#endif
 
 }
 
@@ -332,7 +346,17 @@ static void Flow_The_Parcel(const parcel &in_pcl, List<parcel> &Return_List,
 	      Cube_Exit(pcl, In_List, max_size);
 	      break;
 	    }
+
+	  #ifdef DEBUG
+	  cout << endl;
+	  cout << "before flow(): pcl.box = " << pcl.box << endl;
+	  #endif
+
 	  Flow(pcl, dist); // If none of the situations        
+	  
+	  #ifdef DEBUG
+	  cout << "pcl.box = " << pcl.box << endl;
+	  #endif
 	}                  // above occured, we flow along.
     }
 }
