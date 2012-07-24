@@ -35,12 +35,12 @@ static void DVf_Range     (BOX      &, const BOX &, const short &);
 // the 'lorenz' vector field w.r.t. the BOX bx.           
 static void Naive_Vf_Range(BOX &result, const BOX &bx)
 {
-  interval C1 = bx(1) + bx(2);
-  interval C2 = K1_IV * C1 * bx(3);
+  interval C1 = bx[ 0 ] + bx[ 1 ];
+  interval C2 = K1_IV * C1 * bx[ 2 ];
 
-  result(1) = E1_IV * bx(1) - C2;
-  result(2) = E2_IV * bx(2) + C2;
-  result(3) = E3_IV * bx(3) + C1 * (K2_IV * bx(1) + K3_IV * bx(2));
+  result[0] = E1_IV * bx[ 0 ] - C2;
+  result[1] = E2_IV * bx[ 1 ] + C2;
+  result[2] = E3_IV * bx[ 2 ] + C1 * (K2_IV * bx[ 0 ] + K3_IV * bx[ 1 ]);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -83,12 +83,14 @@ void Vf_Range(BOX &result, const BOX &bx)
 // w.r.t. the BOX bx.
 static void Naive_Vf_Range(interval &result, const BOX &bx, const short &i)
 {
-  if ( i == 1 )
-    result = E1_IV * bx(1) - K1_IV * (bx(1) + bx(2)) * bx(3);
+  // jjb -- we keep the i'th coordinates the same, but in doing so, we
+  // have to line up the CAPD indexing to be 0-based.
+    if ( i == 1 )
+    result = E1_IV * bx[ 0 ] - K1_IV * (bx[ 0 ] + bx[ 1 ]) * bx[ 2 ];
   else if ( i == 2 )
-    result = E2_IV * bx(2) + K1_IV * (bx(1) + bx(2)) * bx(3);
+    result = E2_IV * bx[ 1 ] + K1_IV * (bx[ 0 ] + bx[ 1 ]) * bx[ 2 ];
   else if ( i == 3 )
-    result = E3_IV * bx(3) + (bx(1) + bx(2)) * (K2_IV * bx(1) + K3_IV * bx(2));
+    result = E3_IV * bx[ 2 ] + (bx[ 0 ] + bx[ 1 ]) * (K2_IV * bx[ 0 ] + K3_IV * bx[ 1 ]);
   else
     {
       char *msg = "Error: 'Vf_Range'. Index i out of range.";
@@ -135,8 +137,8 @@ void Vf_Range(interval &result, const BOX &bx, const short &i)
 // the vector field Vf_Range wrt the BOX bx
 void DVf_Range(IMatrix &result, const BOX &bx)
 {
-  interval C1 = K1_IV * (bx(1) + bx(2));
-  interval C2 = K1_IV * bx(3);
+  interval C1 = K1_IV * (bx[ 0 ] + bx[ 1 ]);
+  interval C2 = K1_IV * bx[ 2 ];
 
   result(1, 1) = E1_IV - C2;
   result(1, 2) = - C2;
@@ -144,8 +146,8 @@ void DVf_Range(IMatrix &result, const BOX &bx)
   result(2, 1) =  C2;
   result(2, 2) = E2_IV + C2;
   result(2, 3) =  C1;
-  result(3, 1) = TWO_K2_IV * bx(1) + K2_PLUS_K3_IV * bx(2);
-  result(3, 2) = K2_PLUS_K3_IV * bx(1) + TWO_K3_IV * bx(2);
+  result(3, 1) = TWO_K2_IV * bx[ 0 ] + K2_PLUS_K3_IV * bx[ 1 ];
+  result(3, 2) = K2_PLUS_K3_IV * bx[ 0 ] + TWO_K3_IV * bx[ 1 ];
   result(3, 3) = E3_IV;
 }
 
@@ -155,28 +157,28 @@ void DVf_Range(IMatrix &result, const BOX &bx)
 // of the vector field Vf_Range wrt the BOX bx
 static void DVf_Range(BOX &result, const BOX &bx, const short &i)
 {
-  interval C1 = K1_IV * (bx(1) + bx(2));
-  interval C2 = K1_IV * bx(3);
+  interval C1 = K1_IV * ( bx[ 0 ] + bx[ 1 ] );
+  interval C2 = K1_IV * bx[ 2 ];
 
   if ( i == 1 )
     {
-      result(1) = E1_IV - C2;
-      result(2) = - C2;
-      result(3) = - C1;
+      result[ 0 ] = E1_IV - C2;
+      result[ 1 ] = - C2;
+      result[ 2 ] = - C1;
       return;
     }
   if ( i == 2)
     {
-      result(1) = C2;
-      result(2) = E2_IV + C2;
-      result(3) = C1;
+      result[ 0 ] = C2;
+      result[ 1 ] = E2_IV + C2;
+      result[ 2 ] = C1;
       return;
     }
   if ( i == 3 )
     { 
-      result(1) = TWO_K2_IV * bx(1) + K2_PLUS_K3_IV * bx(2);
-      result(2) = K2_PLUS_K3_IV * bx(1) + TWO_K3_IV * bx(2);
-      result(3) = E3_IV;
+      result[ 0 ] = TWO_K2_IV * bx[ 0 ] + K2_PLUS_K3_IV * bx[ 1 ];
+      result[ 1 ] = K2_PLUS_K3_IV * bx[ 0 ] + TWO_K3_IV * bx[ 1 ];
+      result[ 2 ] = E3_IV;
       return;
     }
   char *msg = "Error: 'DVf_Range'. Index row out of range.";
@@ -192,27 +194,27 @@ interval DVf_Range(const BOX &bx, const short &i, const short &j)
   if (i == 1)
     {
       if (j == 1)
-	return E1_IV - K1_IV * bx(3);
+	return E1_IV - K1_IV * bx[ 2 ];
       if (j == 2)
-	return - K1_IV * bx(3);
+	return - K1_IV * bx[ 2 ];
       if (j == 3)
-	return - K1_IV * (bx(1) + bx(2));
+	return - K1_IV * (bx[ 0 ] + bx[ 1 ]);
     }
   if (i == 2)
     {
       if (j == 1)
-	return  K1_IV * bx(3);
+	return  K1_IV * bx[ 2 ];
       if (j == 2)
-	return E2_IV + K1_IV * bx(3);
+	return E2_IV + K1_IV * bx[ 2 ];
       if (j == 3)
-	return  K1_IV * (bx(1) + bx(2));
+	return  K1_IV * (bx[ 0 ] + bx[ 1 ]);
     }
   if (i == 3)
     {
       if (j == 1)
-	return TWO_K2_IV * bx(1) + (K2_PLUS_K3_IV) * bx(2);
+	return TWO_K2_IV * bx[ 0 ] + (K2_PLUS_K3_IV) * bx[ 1 ];
       if (j == 2)
-	return (K2_PLUS_K3_IV) * bx(1) + TWO_K3_IV * bx(2);
+	return (K2_PLUS_K3_IV) * bx[ 0 ] + TWO_K3_IV * bx[ 1 ];
       if (j == 3)
 	return E3_IV;
     }
@@ -228,27 +230,27 @@ void DVf_Range(interval &result, const BOX &bx, const short &i, const short &j)
   if (i == 1)
     {
       if (j == 1)
-	result = E1_IV - K1_IV * bx(3);
+	result = E1_IV - K1_IV * bx[ 2 ];
       else if (j == 2)
-	result = - K1_IV * bx(3);
+	result = - K1_IV * bx[ 2 ];
       else if (j == 3)
-	result = - K1_IV * (bx(1) + bx(2));
+	result = - K1_IV * (bx[ 0 ] + bx[ 1 ]);
     }
   else if (i == 2)
     {
       if (j == 1)
-	result = K1_IV * bx(3);
+	result = K1_IV * bx[ 2 ];
       else if (j == 2)
-	result = E2_IV + K1_IV * bx(3);
+	result = E2_IV + K1_IV * bx[ 2 ];
       else if (j == 3)
-	result = K1_IV * (bx(1) + bx(2));
+	result = K1_IV * (bx[ 0 ] + bx[ 1 ]);
     }
   else if (i == 3)
     {
       if (j == 1)
-	result = TWO_K2_IV * bx(1) + (K2_PLUS_K3_IV) * bx(2);
+	result = TWO_K2_IV * bx[ 0 ] + (K2_PLUS_K3_IV) * bx[ 1 ];
       else if (j == 2)
-	result = (K2_PLUS_K3_IV) * bx(1) + TWO_K3_IV * bx(2);
+	result = (K2_PLUS_K3_IV) * bx[ 0 ] + TWO_K3_IV * bx[ 1 ];
       else if (j == 3)
 	result = E3_IV;
     }

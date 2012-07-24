@@ -220,8 +220,8 @@ ostream & operator << (ostream &out, const parcel &pcl)
   return out; 
 }
 
-////////////////////////////////////////////////////////////////////
-// We recast common RODES functions to use CAPD global functions
+///////////////////////////////////////////////////////////////////////////////
+// We recast common RODES functions to use CAPD global functions and methods
 
 double Sup ( const interval &iv )
 { 
@@ -248,7 +248,7 @@ DVector Inf ( const IVector &vec )
 // Returns an IVector containing the lower bounds of the IVector vec. as singletons. 
 DVector Sup ( const IVector &vec )
 {
-  // fill infVec with the infima of vec. 
+  // fill infVec with the suprema of vec. 
     DVector supVec ( vec.dimension() );
     for ( register short i = 0; i < vec.dimension(); i++ )
       {
@@ -259,19 +259,21 @@ DVector Sup ( const IVector &vec )
 
 interval AddBounds ( const double &d1, const double &d2 )
 {
-    interval iv1 ( d1 ), iv2 ( d2 );
-    return iv1 + iv2;
+    interval result = interval ( iv1 + iv2 );
+    return result;
 }
 
 interval SubBounds ( const double &d1, const double &d2 )
 {
-    interval iv1 ( d1 ), iv2 ( d2 );
-    return iv2 - iv1;
+    interval result = interval ( d1 - d2 );
+    return result;
+    // interval iv1 ( d1 ), iv2 ( d2 );
+    // return iv2 - iv1;
 }
 
 IVector SubBounds ( const DVector &iv1, const DVector &iv2 )
 {
-    DVector result = iv2 - iv1;
+    DVector result = iv1 - iv2;
     IVector sb ( result );
     return sb;
 }

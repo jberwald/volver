@@ -16,7 +16,9 @@
 // Classical constants for the 'lorenz' system
 const double S = 10.0;
 const double R = 28.0;
-const double B = 8./3;
+//const double B = 8./3;
+const double Bnum = 8.;
+const double Bdenom = 3.;
 
 // Parameters in the Jordan normal form
 const double TEMP = sqrt((S + 1) * (S + 1) + 4 * S * (R - 1));
@@ -27,7 +29,7 @@ const double K3 = (S - 1 - TEMP) / (2 * S);
 // Eigenvalues at the origin
 const double E1 = (- (S + 1) + TEMP) / 2;
 const double E2 = (- (S + 1) - TEMP) / 2;
-const double E3 = - B;
+const double E3 = - Bnum / Bdenom;
 
 ////////////////////////////////////////////////////////////////////
 // Rigorous Constants from here.
@@ -35,7 +37,7 @@ const double E3 = - B;
 // Intervals constructed only once
 const interval S_IV = Init_Interval(S, S);
 const interval R_IV = Init_Interval(R, R);
-const interval B_IV = Init_Interval(B, B);
+const interval B_IV = Init_Interval(Bnum, Bnum) / Init_Interval( Bdenom, Bdenom );
 
 // Parameters in the Jordan normal form
 const interval TEMP_IV = sqrt((S_IV + 1)*(S_IV + 1) + 4*S_IV*(R_IV - 1));

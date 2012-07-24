@@ -186,18 +186,18 @@ static void Flow(parcel &pcl, const double &trvl_dist)
 	rad = (Sup(pcl.box[i-1]) - Inf(pcl.box[i-1])) / 2.0;
 	mid = Inf(pcl.box[i-1]) + rad;
 	rad *= SCALE_FACTOR;
-	Outer_Box[i-1] = Hull(mid - rad, mid + rad);
+	Outer_Box[ i-1 ] = Hull(mid - rad, mid + rad);
       }
 
-  interval time;
-  Get_Flow_Time(time, result, trvl_dist, Outer_Box);
+    interval time;
+    Get_Flow_Time(time, result, trvl_dist, Outer_Box);
 
     #ifdef DEBUG
     cout << "time = " << time << endl;
     #endif
 
   // Now, we tighten the enclosure...
-  IMatrix DPi(SYSDIM, SYSDIM);
+  IMatrix DPi( SYSDIM, SYSDIM );
   BOX Tight_Box;
 
   BOX Image = pcl.box + time * Vf_Range(Outer_Box);
@@ -242,9 +242,9 @@ static void Update_Transversal(parcel &pcl, const short &trvl, const double &max
   stop_pmtr.trvl  = new_trvl;
   stop_pmtr.sign  = new_sign;             
   if ( new_sign == 1 )
-    stop_pmtr.level = Sup(pcl.box(new_trvl));
+    stop_pmtr.level = Sup(pcl.box[ new_trvl ]);
   else
-    stop_pmtr.level = Inf(pcl.box(new_trvl));
+    stop_pmtr.level = Inf(pcl.box[ new_trvl ]);
 
   // Split pcl into several small pieces -> Start_List, 
   // whose elements are flowed separately to the plane.
@@ -260,7 +260,7 @@ static void Update_Transversal(parcel &pcl, const short &trvl, const double &max
       Build_Switch_Box(current_pcl, new_trvl, Temp_Switch_Box, more_than_one);	
       Switch_Transversal(current_pcl, trvl, Temp_Switch_Box);
 
-      if ( stop_pmtr.level == Sup(current_pcl.box(new_trvl)) ) // Sup = Inf
+      if ( stop_pmtr.level == Sup(current_pcl.box[ new_trvl ]) ) // Sup = Inf
 	Stop_List += current_pcl; //No need to flow
       else   // Here we make a call to 'Local_Flow_The_Parcel', which flows
 	{    // the parcel straight to the new trvl plane.  
@@ -331,6 +331,10 @@ static void Flow_The_Parcel(const parcel &in_pcl, List<parcel> &Return_List,
 	    }
 	  if ( pcl.message == STOP ) // If we we have completed a full
 	    {                        // return, we store the parcel.
+               #ifdef DEBUG
+	      cout << "STOP" << endl;
+	      #endif
+
 	      Return_List += pcl;
 	      break;
 	    }
@@ -343,6 +347,10 @@ static void Flow_The_Parcel(const parcel &in_pcl, List<parcel> &Return_List,
 	    dist = Min(sp.max_d_step, Inf(Norm2(pcl.box)) / 10.0);
 	  if ( Cube_Entry(pcl) ) // If we enter the cube containing the origin
 	    {                    // we explicitly compute the outgoing image(s).
+	      #ifdef DEBUG
+	      cout << "cube_Entry()" << endl;
+	      #endif
+
 	      Cube_Exit(pcl, In_List, max_size);
 	      break;
 	    }

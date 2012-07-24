@@ -17,38 +17,45 @@ static const short SWITCH_TRVL_ITERATES = 2;
 // of the vector field, and translates the parcel to the first new plane.
 void Switch_Transversal(parcel &pcl, const short &trvl, const BOX &Switch_Box)
 {
-  short new_trvl = abs(trvl);
-  short new_sign = Sign(trvl);
-  interval time;
-  BOX vf(SYSDIM);
-  BOX Euler_Box(SYSDIM);
-  BOX Temp_Switch_Box = Switch_Box;
-  parcel result = pcl;         // Get the easy pieces of result
+    short new_trvl = abs(trvl); // account for 0-index in BOX/IVector indexing
+    
+    #ifdef DEBUG
+    cout << endl;
+    cout << "trvl = " << new_trvl << endl << endl;
+    #endif
+ 
+    short new_sign = Sign(trvl);
+    interval time;
+    BOX vf(SYSDIM);
+    BOX Euler_Box(SYSDIM);
+    BOX Temp_Switch_Box = Switch_Box;
+    parcel result = pcl;         // Get the easy pieces of result
 
-  result.trvl = new_trvl;
-  result.sign = new_sign;
+    result.trvl = new_trvl;  
+    result.sign = new_sign;
 
   for ( register short j = 1; j <= SWITCH_TRVL_ITERATES; j++ ) // No point in doing
     {                                                          // more than a few laps.
       Vf_Range(vf, Temp_Switch_Box);             // get the flow times
       if ( new_sign == + 1)
-	time = intervalHull( interval( 0 ), diam(pcl.box(new_trvl)) / vf(new_trvl) );
+	time = intervalHull( interval( 0. ), diam(pcl.box[ new_trvl-1 ]) / vf[ new_trvl-1 ] );
       else
-	time = intervalHull( interval( 0 ), - diam(pcl.box(new_trvl)) / vf(new_trvl) );    
+	time = intervalHull( interval( 0. ), - diam(pcl.box[ new_trvl-1 ]) / vf[ new_trvl-1 ] );    
       
-      for ( register short i = 1; i <= SYSDIM; i++ ) // Compute the Euler step
+			     //for ( register short i = 1; i <= SYSDIM; i++ ) // Compute the Euler step
+      for ( register short i = 1; i <= SYSDIM; i++ )
 	if ( i != new_trvl )
-	  Euler_Box(i) = pcl.box(i) + time * vf(i);
+	  Euler_Box[ i-1 ] = pcl.box[ i-1 ] + time * vf[ i-1 ];
 
       if ( new_sign == + 1)
-	Euler_Box [ new_trvl ] = interval( Sup ( pcl.box( new_trvl ) ) );
+	Euler_Box [ new_trvl-1 ] = interval( Sup ( pcl.box[ new_trvl-1 ] ) );
       else
-	Euler_Box [ new_trvl ] = interval( Inf ( pcl.box( new_trvl ) ) );
+	Euler_Box [ new_trvl-1 ] = interval( Inf ( pcl.box[ new_trvl-1 ] ) );
 
       if ( j != SWITCH_TRVL_ITERATES ) // We use this result to shrink
 	{	                       // Temp_Switch_Box, and loop again.
 	  Temp_Switch_Box = Euler_Box; // pcl.box(i) \subset Euler_Box(i), i != trvl.
-	  Temp_Switch_Box(new_trvl) = Switch_Box(new_trvl); 
+	  Temp_Switch_Box[ new_trvl-1 ] = Switch_Box[ new_trvl-1 ]; 
 	}
     }
   result.box = Euler_Box;  // Save the new codim1
@@ -196,39 +203,66 @@ void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
     double temp_time;
     double trvl_dx, dx;
     BOX    Inner_Box = pcl.box;              // Initialize.
-    BOX    vf(SYSDIM);  Vf_Range(vf, Outer_Box);
+    BOX    vf( SYSDIM );  
+    Vf_Range(vf, Outer_Box);
     double min_time  = HUGE; //Machine::PosInfinity; // A huge initial guess.
 
-  for ( i = 1; i <= SYSDIM; i++ )  // Find the first time any point of Inner_Box hits  
-    if ( i != pcl.trvl )        // a non-transversal boundary of Outer_Box.
-      {                                     // Uses the fact that the non-transversal
-	dx = Inf(SubBounds(Sup(Outer_Box(i)), Sup(Inner_Box(i))));
-	temp_time = dx / Abs(vf(i));        // coordinates of Outer_Box/Inner_Box are
-	min_time = Min(min_time, temp_time);// symmetric, i.e., have the same centers.
-      }
+    cout << " ** vf = " << vf << endl;
+    cout << " ** OB = " << Outer_Box << endl;
 
-  if ( pcl.sign == 1 )                      // Now let's see how far this takes 
-    trvl_dx = min_time * Inf(vf(pcl.trvl)); // us in the transversal direction.
-  else
-    trvl_dx = min_time * Inf(-vf(pcl.trvl));
-  trvl_dx = Min(trvl_dx, trvl_dist);                 
-
-  if ( trvl_dx < trvl_dist )            // If necessary, we shrink Outer_Box
-    {                                   // in the transversal direction.
-      double level = Inf(Inner_Box(pcl.trvl)); // Inf == Sup. 
-      if ( pcl.sign == 1 )
+    
+    for ( i = 1; i <= SYSDIM; i++ )  // Find the first time any point of Inner_Box hits  
+      if ( i != pcl.trvl )        // a non-transversal boundary of Outer_Box.
+	{                                     // Uses the fact that the non-transversal
+	  dx = Inf(SubBounds(Sup(Outer_Box[i-1]), Sup(Inner_Box[i-1])));
+	  temp_time = dx / Abs(vf[i-1]);        // coordinates of Outer_Box/Inner_Box are
+	  min_time = Min(min_time, temp_time);// symmetric, i.e., have the same centers.
+	}
+    if ( pcl.sign == 1 )                      // Now let's see how far this takes 
+      trvl_dx = min_time * Inf( vf[ pcl.trvl-1 ] ); // us in the transversal direction.
+    else
+      trvl_dx = min_time * Inf( -vf[ pcl.trvl-1 ] );
+    trvl_dx = Min( trvl_dx, trvl_dist );                 
+    if ( trvl_dx < trvl_dist )            // If necessary, we shrink Outer_Box
+      {                                   // in the transversal direction.
+	double level = Inf( Inner_Box[ pcl.trvl-1 ] ); // Inf == Sup. 
+	cout << " level = " << level << endl;
 	// want to intervalHull of two interval for the outer_box's
 	// trvl direction
-	Outer_Box [ pcl.trvl ] = intervalHull ( interval ( level ), 
-						AddBounds ( level, trvl_dx ) );
-      else
-	Outer_Box [ pcl.trvl ] = intervalHull ( SubBounds ( level, trvl_dx ), 
-						interval ( level ) );
-      Vf_Range(vf, Outer_Box);       // Recompute the vector field.
-      time = trvl_dx / vf(pcl.trvl); // Compute the flow times required for 
-      if ( pcl.sign == - 1 )         // all points in Inner_Box to flow through 
-	time = - time;               // Outer_Box in the transveral direction.
+	if ( pcl.sign == 1 )
+	  {
+	    Outer_Box [ pcl.trvl-1 ] = intervalHull ( interval ( level ), 
+						      AddBounds ( level, trvl_dx ) );
+	  }
+	else
+	  {
+	    cout << " SubBounds ( level, trvl_dx ) = " << SubBounds ( level, trvl_dx ) << endl;
+	    Outer_Box [ pcl.trvl-1 ] = intervalHull ( SubBounds ( level, trvl_dx ), 
+						      interval ( level ) );
+	  }
+
+	cout << endl;
+	cout << " ** OB = " << Outer_Box << endl;
+	cout << endl;
+
+
+	// Recompute the vector field. Compute the flow times required
+	// for all points in Inner_Box to flow through Outer_Box in
+	// the transveral direction.
+
+      Vf_Range(vf, Outer_Box);       
+      cout << " trvl_dx = " <<  trvl_dx <<endl;
+      cout << "  vf = " << vf << endl;
+      cout << "     pcl.trvl = " << pcl.trvl << endl;
+      cout << "  vf = " << vf[ pcl.trvl-1 ] << endl;
+      
+      time = trvl_dx / vf[ pcl.trvl -1 ]; 
+
+ cout << "  time " << time << endl;
+      if ( pcl.sign == - 1 )        
+	time = - time;               
       time = intervalHull ( interval ( 0.0 ), time );
+      cout << "  time " << time << endl;
     }
   else // if we flowed as far as we wanted to (i.e., out of Outer_Box(trvl))
     {    
@@ -239,7 +273,7 @@ void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
 
   for ( i = 1; i <= SYSDIM; i++ )
     if ( i != pcl.trvl )
-      Outer_Box(i) = Inner_Box(i) + time * vf(i);  // Tighten Outer_Box.
+      Outer_Box[ i-1 ] = Inner_Box[ i-1 ] + time * vf[ i-1 ];  // Tighten Outer_Box.
 
   time = trvl_dx / Vf_Range(Outer_Box, pcl.trvl);  // Tighten time.
   if ( pcl.sign == - 1 )

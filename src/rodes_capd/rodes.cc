@@ -307,6 +307,11 @@ static bool get_a_grid(iterate &it, const char *mult_name, const char *proc_name
     { 
       get_file(mult_name, proc_name);
       result = find_fresh_grid(it, proc_name);
+
+      #ifdef DEBUG
+      cout << "  get_a_grid : result = " << result << endl;
+      #endif
+
       release_file(mult_name, proc_name);
       if ( result == NONE_LEFT )
 	return false;
@@ -385,14 +390,13 @@ static void work_on_grid(iterate &it, const char *mult_name, const char *proc_na
 
   try
     {
-      cout << "     **** first HERE **** " << endl;
   /***************************************************************/
   /*        HERE WE MAKE THE ONLY CALL TO THE INTEGRATOR         */
   /*                                                             */
       if ( it.ndl.c_stat != RESERVED )
 	Compute_the_return(pcl, pcl_List);
 
-      cout << "HERE" << endl;
+      cout << "HERE in rodes.cc" << endl;
   /*                                                             */
   /*                                                             */
   /***************************************************************/
