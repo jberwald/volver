@@ -43,7 +43,6 @@ enum command {START_TIMING, SHOW_TIMING, STOP_TIMING};
 
 extern "C" 
 {
-  
   unsigned int sleep             (unsigned);
 }
 
@@ -114,7 +113,7 @@ static void print_info(const char *proc_file)
   cout << "Computing C0-information ";
 #endif
   cout << endl;
-  cout.precision(3);
+  cout.precision(10);
   cout.setf(ios::showpos);
   cout.setf(ios::scientific);
   cout << "ANG_FACTOR = " << ANG_FACTOR 

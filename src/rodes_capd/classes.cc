@@ -43,9 +43,8 @@ interval Symm_Radius(const double &dbl)
 // the symmetric radius of an interval
 interval Symm_Radius(const interval &iv)
 {  
-    interval _r = diam( iv ) / 2.0;
-    double r = _r . leftBound ( );
-    return interval( -r, r ); 
+    interval d = diam( iv ) / 2.0;
+    return d;
 }
 
 // Returns (by reference) intervals containing both
@@ -114,7 +113,7 @@ BOX Center(const BOX &bx)
   BOX temp(SYSDIM);
 
   for (register short i = 1; i <= SYSDIM; i++)
-    temp(i) = mid ( bx (i ) ); 
+    temp[ i ] = mid ( bx [ i ] ); 
 
   return temp;
 }
@@ -126,7 +125,7 @@ BOX Radius(const BOX &bx)
   BOX temp(SYSDIM);
 
   for (register short i = 1; i <= SYSDIM; i++) 
-    temp(i) = diam ( bx ( i ) ) / 2.0;  
+    temp[ i ] = diam ( bx [ i ] ) / 2.0;  
 
   return temp;
 }
@@ -138,7 +137,7 @@ BOX Symm_Radius(const BOX &bx)
   BOX temp(SYSDIM);
 
   for (register short i = 1; i <= SYSDIM; i++)
-    temp(i) = Symm_Radius ( bx(i) ); // jjb -- SymHull(diam(bx(i)) / 2.0);
+    temp[ i ] = Symm_Radius ( bx[ i ] ); // jjb -- SymHull(diam(bx(i)) / 2.0);
 
   return temp;
 }
@@ -149,9 +148,9 @@ void Mid_And_SymRad(BOX &center, BOX &symmrad, const BOX &bx)
 {
   for (register short i = 1; i <= SYSDIM; i++)
     {
-      symmrad(i) = Symm_Radius ( bx ( i ) );// jjb -- SymHull(diam(bx(i)) / 2.0);
-      center(i) = mid ( bx ( i ) );
+      symmrad[ i ] = Symm_Radius ( bx [ i ] );// jjb -- SymHull(diam(bx(i)) / 2.0);
     } 
+    center = midVector ( bx );
 }
 
 // Rescales the BOX by a non-neg. factor, i.e.,
@@ -162,7 +161,7 @@ BOX Rescale(const BOX &bx, const double &factor)
   BOX result(SYSDIM);
 
   for (register short i = 1; i <= SYSDIM; i++)
-    result(i) = Center(bx(i)) + factor * Symm_Radius(bx(i));
+    result[ i ] = Center(bx[ i ]) + factor * Symm_Radius(bx[ i ]);
       
   return result;
 }
@@ -203,11 +202,11 @@ ostream & operator << (ostream &out, const parcel &pcl)
       << ";  message = " << pcl.message << endl;
   out << "  time = " << pcl.time << "; dt = " << diam(pcl.time) << endl;
   out << "  box  = ";
-    for ( int i = 1; i <= pcl.box.dimension( ); i++ ) 
+    for ( int i = 1; i <= pcl.box.dimension ( ); i++ ) 
     {
       if ( i != 1 )
 	out << "         ";
-      out << pcl.box(i) << "; dx = " << diam(pcl.box(i)) << endl;
+      out << pcl.box[ i ] << "; dx = " << diam(pcl.box[ i ]) << endl;
     }
 #ifdef COMPUTE_C1
   interval angles = RAD_TO_DEG * pcl.angles;
@@ -259,7 +258,7 @@ DVector Sup ( const IVector &vec )
 
 interval AddBounds ( const double &d1, const double &d2 )
 {
-    interval result = interval ( iv1 + iv2 );
+    interval result = interval ( d1 + d2 );
     return result;
 }
 
@@ -267,8 +266,6 @@ interval SubBounds ( const double &d1, const double &d2 )
 {
     interval result = interval ( d1 - d2 );
     return result;
-    // interval iv1 ( d1 ), iv2 ( d2 );
-    // return iv2 - iv1;
 }
 
 IVector SubBounds ( const DVector &iv1, const DVector &iv2 )

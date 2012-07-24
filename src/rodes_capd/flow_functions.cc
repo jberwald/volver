@@ -205,12 +205,13 @@ void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
     BOX    Inner_Box = pcl.box;              // Initialize.
     BOX    vf( SYSDIM );  
     Vf_Range(vf, Outer_Box);
-    double min_time  = HUGE; //Machine::PosInfinity; // A huge initial guess.
+    double min_time = 1e10; //Machine::PosInfinity; // A huge initial guess.
 
-    cout << " ** vf = " << vf << endl;
-    cout << " ** OB = " << Outer_Box << endl;
+    cout << endl;
+    cout << "In Get_Flow_Time()" << endl;
+    cout << "  min time = " << min_time << endl;
+    cout << "  OB = " << Outer_Box << endl;
 
-    
     for ( i = 1; i <= SYSDIM; i++ )  // Find the first time any point of Inner_Box hits  
       if ( i != pcl.trvl )        // a non-transversal boundary of Outer_Box.
 	{                                     // Uses the fact that the non-transversal
@@ -226,7 +227,6 @@ void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
     if ( trvl_dx < trvl_dist )            // If necessary, we shrink Outer_Box
       {                                   // in the transversal direction.
 	double level = Inf( Inner_Box[ pcl.trvl-1 ] ); // Inf == Sup. 
-	cout << " level = " << level << endl;
 	// want to intervalHull of two interval for the outer_box's
 	// trvl direction
 	if ( pcl.sign == 1 )
@@ -236,33 +236,23 @@ void Get_Flow_Time(interval &time, parcel &pcl, const double &trvl_dist,
 	  }
 	else
 	  {
-	    cout << " SubBounds ( level, trvl_dx ) = " << SubBounds ( level, trvl_dx ) << endl;
 	    Outer_Box [ pcl.trvl-1 ] = intervalHull ( SubBounds ( level, trvl_dx ), 
 						      interval ( level ) );
 	  }
 
-	cout << endl;
-	cout << " ** OB = " << Outer_Box << endl;
-	cout << endl;
-
+	cout << "  second OB = " << Outer_Box << endl;
 
 	// Recompute the vector field. Compute the flow times required
 	// for all points in Inner_Box to flow through Outer_Box in
 	// the transveral direction.
 
       Vf_Range(vf, Outer_Box);       
-      cout << " trvl_dx = " <<  trvl_dx <<endl;
-      cout << "  vf = " << vf << endl;
-      cout << "     pcl.trvl = " << pcl.trvl << endl;
-      cout << "  vf = " << vf[ pcl.trvl-1 ] << endl;
       
-      time = trvl_dx / vf[ pcl.trvl -1 ]; 
-
- cout << "  time " << time << endl;
+      time = trvl_dx; time /= vf[ pcl.trvl - 1 ];
+      //      time = trvl_dx / vf[ pcl.trvl -1 ]; 
       if ( pcl.sign == - 1 )        
 	time = - time;               
       time = intervalHull ( interval ( 0.0 ), time );
-      cout << "  time " << time << endl;
     }
   else // if we flowed as far as we wanted to (i.e., out of Outer_Box(trvl))
     {    

@@ -190,10 +190,13 @@ static void Flow(parcel &pcl, const double &trvl_dist)
       }
 
     interval time;
+
+    cout << "  Flow():OB = " << Outer_Box << endl;
+
     Get_Flow_Time(time, result, trvl_dist, Outer_Box);
 
     #ifdef DEBUG
-    cout << "time = " << time << endl;
+    cout << "Flow():time = " << time << endl;
     #endif
 
   // Now, we tighten the enclosure...
@@ -210,6 +213,9 @@ static void Flow(parcel &pcl, const double &trvl_dist)
 
   Flow_By_Corner_Method(Tight_Box, DPi, pcl, Outer_Box);
 
+    cout << "  after flow by corner Flow():OB = " << Outer_Box << endl;
+    cout << "  -->Flow():TB = " << Tight_Box << endl;
+
 #ifdef COMPUTE_C1  // ...and flow the tangent vectors
   Flow_Tangent_Vectors(result, pcl.sign*pcl.trvl, pcl.sign*pcl.trvl, DPi);
 #endif
@@ -220,7 +226,7 @@ static void Flow(parcel &pcl, const double &trvl_dist)
 
     #ifdef DEBUG
     cout << "pcl.box = " << pcl.box << endl;
-#endif
+    #endif
 
 }
 

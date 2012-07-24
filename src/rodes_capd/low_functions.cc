@@ -110,7 +110,7 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 		  if ( Subset(0.0, DPi(i, j)) == true )	
 		    {    // compute min/max P[i] in the side boxes  
 		      Vf_Range(vf, Side_Box[k]);
-		      local_dist = sign_trvl_dist * vf[i] / vf(trvl);  // interval
+		      local_dist = sign_trvl_dist * vf[i] / vf[ trvl ];  // interval
 		      Poincare[k][i] = start + local_dist; // double + interval
 		    }   
 		  else   // Compute min/max P[i] at the corners
@@ -127,7 +127,7 @@ void Some_May_Vanish(BOX &result, const IMatrix &DPi,
 		      for (register short m = 0; m < 2; m++)
 			{ // m indicates the Corner_Box in use
 			  Vf_Range(vf, Corner_Box[m]);  
-			  iv[m] = vf[i] / vf(trvl);	
+			  iv[m] = vf[i] / vf[ trvl ];	
 			}	    
 		      Poincare[k][i] = start + sign_trvl_dist 
 			* intervalHull(iv[0], iv[1]);
@@ -155,20 +155,21 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
     register short i, j;
     double lo_coord, hi_coord;
     // allotting space for array of DVectors ( n = POWER )
-    DVector *point_in = new ( SYSDIM ) DVector [ POWER ];
-    DVector *point_out = new ( SYSDIM ) DVector [ POWER ];
-
-    // DVector point_in[POWER];   // Storage for the corner points -- we need 2^(d-1) corners for the in points
-    // DVector point_out[POWER];  // Storage for the corner points  << --- ***** THIS UTILIZES BUILT IN Int_Power() Will have to fils ASAP.
-    DVector current_point(SYSDIM); // 
-
+    DVector *point_in = new ( SYSDIM ) DVector [ POWER ];  // Storage for the corner points -- we need 2^(d-1) corners for the in points
+    DVector *point_out = new ( SYSDIM ) DVector [ POWER ]; // Storage for the corner points 
+    DVector current_point ( SYSDIM ); 
+    
+    // DVector point_in[POWER];  
+    // DVector point_out[POWER];   << --- ***** THIS UTILIZES BUILT IN Int_Power() Will have to fils ASAP.
+   
     BOX *corner_in = new ( SYSDIM ) BOX [ POWER ];
     BOX *corner_out = new ( SYSDIM ) BOX [ POWER ];
 
     // BOX corner_in[POWER];     // Storage for the corner boxes -- similar number of corner intervals needed as in point_in
     // BOX corner_out[POWER];    // Storage for the corner boxes 
-    BOX current_box(SYSDIM);
-    BOX lo_box(SYSDIM), hi_box(SYSDIM);
+    BOX current_box ( SYSDIM );
+    BOX lo_box ( SYSDIM );
+    BOX hi_box ( SYSDIM );
     int corner_in_cnt  = 0;
     int corner_out_cnt = 0;
     int point_in_cnt   = 0;
@@ -185,17 +186,17 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
     if ( i != trvl )
       {	// Prepare the intersectors
 	lo_box    = Outer_Box;
-	lo_box[i] = Inf(Inner_Box[i]) + dx[i];
+	lo_box[ i-1 ] = Inf(Inner_Box[ i-1 ]) + dx[ i-1 ];
 	hi_box    = Outer_Box;
-	hi_box[i] = Sup(Inner_Box[i]) + dx[i];
+	hi_box[ i-1 ] = Sup(Inner_Box[ i-1 ]) + dx[ i-1 ];
 	
-	lo_coord = Inf(Inner_Box[i]);
-	hi_coord = Sup(Inner_Box[i]);
+	lo_coord = Inf(Inner_Box[ i-1 ]);
+	hi_coord = Sup(Inner_Box[ i-1 ]);
 	
 	for (j = 0; j < corner_out_cnt; j++)  // Copy corner_out to corner_in
 	  {	                              // and delete all in corner_out
-	    corner_in[j] = corner_out[j];
-	    point_in[j] = point_out[j];
+	    corner_in[ j ] = corner_out[ j ];
+	    point_in[ j ] = point_out[ j ];
 	  }
 	corner_in_cnt = corner_out_cnt;
 	corner_out_cnt = 0;
@@ -205,40 +206,41 @@ void None_May_Vanish(BOX &result, const parcel &pcl, const BOX &Outer_Box,
 	loop_cnt = corner_in_cnt;
 	for (j = 0; j < loop_cnt; j++) // loop_cnt = 2^(i - 1)
 	  {
-	    current_box = corner_in[j];
+	    current_box = corner_in[ j ];
 	    Intersection(corner_out[corner_out_cnt++], current_box, lo_box);
 	    Intersection(corner_out[corner_out_cnt++], current_box, hi_box);
 	    current_point = point_in[j];
 	    point_out[point_out_cnt] = current_point;
-	    point_out[point_out_cnt++][i] = lo_coord;
+	    point_out[point_out_cnt++][ i-1 ] = lo_coord;
 	    point_out[point_out_cnt] = current_point;
-	    point_out[point_out_cnt++][i] = hi_coord;
+	    point_out[point_out_cnt++][ i-1 ] = hi_coord;
 	  }               // Now the corners are stored in 
       }                   // corner_out[i], i = 0,...,2^(SYSDIM - 1) - 1.
 
   i = 0; // Just for symmetric definitions
   BOX vf(SYSDIM);  Vf_Range(vf, corner_out[i]);
-  interval corner_time = sign_trvl_dist / vf(trvl);
+  interval corner_time = sign_trvl_dist / vf[ trvl-1 ];
 
-  // This is odd: DVector + ( interval * IVector )
-  // From PROFIL doc: REAL or VECTOR operands may also be used instead of interval operands, as long as one operand is an INTERVAL type. 
+  // jjb -- This is odd: DVector + ( interval * IVector )
+  // From PROFIL doc: REAL or VECTOR operands may also be used instead
+  // of interval operands, as long as one operand is an INTERVAL type.
     
   // Convert DVector to IVector (singletons)
-    IVector dp ( point_out[i] );
+    IVector dp ( point_out[i] );  // point_out[0], since i==0
     result = dp + ( corner_time * vf ); // A bit wasteful seeing that I don't use the trvl coord.
                                             // Probably faster to use add an inner loop:
     // Use dp here, too
   for (i = 1; i < POWER; i++)               // for (k = 1; k <= SYSDIM; k++)
     {                                       //   if ( k != trvl )
-      Vf_Range(vf, corner_out[i]);          //     result(k) = point_out[i](k) + corner_time * vf(k);
-      corner_time = sign_trvl_dist / vf(trvl);   
-      result = intervalHull(result, dp + corner_time * vf);  // ** this is passing ivec and interval
+      Vf_Range(vf, corner_out[ i-1 ]);          //     result(k) = point_out[i](k) + corner_time * vf(k);
+      corner_time = sign_trvl_dist / vf[ trvl-1 ];   
+      result = intervalHull(result, point_out[ i-1 ] + corner_time * vf);  // ** this is passing ivec and interval
     }
 
   if ( pcl.sign == 1 )
-    result(trvl) = interval(Sup(Outer_Box(trvl)));
+    result[ trvl-1 ] = interval(Sup(Outer_Box[ trvl-1 ]));
   else
-    result(trvl) = interval(Inf(Outer_Box(trvl)));
+    result[ trvl-1 ] = interval(Inf(Outer_Box[ trvl-1] ));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -253,6 +255,8 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
   // create an intervalHull() from the vectors of singleton intervals.
     BOX dx = capd::vectalg::intervalHull ( SubBounds( Inf( Outer_Box ), Inf( pcl.box ) ),
 					   SubBounds( Sup( Outer_Box ), Sup( pcl.box ) ) );
+
+    cout << "    ** FLOW_BY_CORNER_METHOD():dx = " << dx << endl;
 
   bool zero_indicator = false;     // Check for possible zeroes of the
   for (register short i = 1; i <= SYSDIM; i++)    
@@ -277,14 +281,19 @@ void Flow_By_Corner_Method(BOX &Result_Box, const IMatrix &DPi,
 	    } // END  for j
 	} 
     } // END for i
-    double trvl_dist = Diam( dx( pcl.trvl ) );   // Get the transversal distance
+    double trvl_dist = Diam( dx[ pcl.trvl - 1] );   // Get the transversal distance
     if ( pcl.sign == -1 )
       trvl_dist = - trvl_dist;
 
-  if ( zero_indicator )
-    Some_May_Vanish(Result_Box, DPi, pcl, Outer_Box, dx, trvl_dist);
-  else
-    None_May_Vanish(Result_Box, pcl, Outer_Box, dx, trvl_dist);    
+    if ( zero_indicator ) {
+      Some_May_Vanish(Result_Box, DPi, pcl, Outer_Box, dx, trvl_dist);
+      cout << "       ** zero : " << Result_Box << endl;
+    }
+    else {
+      None_May_Vanish(Result_Box, pcl, Outer_Box, dx, trvl_dist);    
+      cout << "       ** non-zero : " << Result_Box << endl;
+      
+    }
 
 }
 

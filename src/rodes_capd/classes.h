@@ -39,6 +39,8 @@ const short  SYSDIM           = 3;
 //#define COMPUTE_C1 
 
 // define interval vectors and matrices based on interval type
+typedef capd::intervals::Interval< double > DInterval;
+typedef DInterval interval;
 typedef capd::vectalg::Vector < double, 0 > DVector;
 typedef capd::vectalg::Vector < interval, 0 > IVector;
 typedef capd::vectalg::Matrix < interval, 0, 0 > IMatrix;
